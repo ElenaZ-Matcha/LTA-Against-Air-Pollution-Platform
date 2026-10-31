@@ -3,12 +3,14 @@
 A browser tool for redesigning bus stops in Singapore so that waiting passengers are less exposed to bus exhaust. The designer picks a stop, reads its site conditions, tries a design prototype, edits it on the satellite plan, checks it, saves options and exports them to Grasshopper / Rhino for detailed design.
 
 > **This is a student project.** It was made for the architecture design studio **AR5801, National University of Singapore (NUS), Semester 1 2026**. It is **not** an LTA product. LTA has not commissioned, reviewed or endorsed it.
+>
+> **Author:** Zhan Yao (individual project).
 
 ## Who it is for
 
 | | |
 |---|---|
-| **Client (assumed)** | An **LTA bus stop designer**. This client and their brief were **set by the authors** for the studio; there is no real client. |
+| **Client (assumed)** | An **LTA bus stop designer**. This client and their brief were **set by the author** for the studio; there is no real client. |
 | **What that designer does with it** | Fast comparison of options at one stop, then hand-off to Grasshopper for detailed modelling. |
 | **Not for** | Passengers, the public, approval submissions, or engineering / health decisions. |
 
@@ -112,4 +114,4 @@ Users of this repository are responsible for following each provider's terms.
 
 ### 中文简介
 
-本仓库是 NUS AR5801 建筑设计课程的学生项目。"LTA 公交站设计师"是作者为课程设定的假想客户，项目与 LTA 无关、未经其审核。平台用于在同一风况与车辆情景下快速比较公交站方案，并交给 Grasshopper 深化。暴露值是示意指数，不是实测或健康结论；平台不做法规检查，本仓库也不包含任何法规/规范文件。
+本仓库是 NUS AR5801 建筑设计课程的学生个人项目，作者 Zhan Yao。"LTA 公交站设计师"是作者为课程设定的假想客户，项目与 LTA 无关、未经其审核。平台用于在同一风况与车辆情景下快速比较公交站方案，并交给 Grasshopper 深化。暴露值是示意指数，不是实测或健康结论；平台不做法规检查，本仓库也不包含任何法规/规范文件。
