@@ -37,6 +37,7 @@ The designer's workflow follows the left navigation of the page:
   exports/                                  sample exports (P041 archive, P065 DXF / GH params / scenario)
 02-Data/                                    the project database used by the platform
 DATA_LOG.md                                 upload record of every data file (source, date, size, hash)
+index.html                                  site root; forwards to the platform page (for static hosting such as Vercel)
 ```
 
 ## How to run
@@ -54,6 +55,8 @@ python 01-Platform/serve_platform.py 8765
 ```
 
 then open `http://localhost:8765/01-Platform/LTA-Against%20Air%20Pollution%20Platform.html`. The server listens on 127.0.0.1 / ::1 only.
+
+On static hosting (e.g. Vercel) the root `index.html` forwards to the platform. There is no save server there, so exports download through the browser instead of going to `exports/`.
 
 Rebuild after changing the data or the template (needs Python 3 with `Pillow` and `pyproj`):
 
