@@ -1,0 +1,820 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zoning Design · LTA-AAP</title>
+<style>
+:root{
+  --bg:#eef2f3; --panel:#ffffff; --ink:#182125; --muted:#5d6b70; --line:#dfe5e7; --soft:#f4f7f8;
+  --accent:#1d63b8; --accent-soft:#e8f0fb; --teal:#0f7f86; --teal-soft:#e3f3f3; --green:#2f8f3a; --red:#d7263d; --warn:#b26b00; --sel:#f08c00;
+  --z-boarding:#1d63b8; --z-crossing:#0f9aa0; --z-waiting:#e0a800; --z-filter:#2f8f3a; --z-canopy:#6b7680;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:13px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,"Microsoft YaHei",sans-serif}
+.shell{max-width:1680px;margin:0 auto;padding:18px 20px 28px}
+header.top{display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.brand b{display:block;font-size:19px;line-height:1.2;letter-spacing:.01em}
+.brand span{font-size:12px;color:var(--muted)}
+.brand{padding-right:22px;border-right:1px solid var(--line);margin-right:4px}
+.title h1{margin:0;font-size:22px;line-height:1.2}
+.title .sub{margin-top:2px}
+.sub{color:var(--muted);font-size:12px}
+.hd-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dirty{color:var(--warn);font-weight:600;font-size:12px}
+.clean{color:var(--green);font-size:12px}
+button.b{padding:7px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit;cursor:pointer;color:var(--ink)}
+button.b:hover{border-color:#b8c3c7}
+button.b.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+button.b.primary:hover{background:#174f93}
+button.b.teal{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+button.b:disabled{opacity:.45;cursor:not-allowed}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.sheet{display:grid;grid-template-columns:300px minmax(0,1fr) 290px;background:var(--panel);border:1px solid var(--line);border-radius:16px;min-height:calc(100vh - 110px)}
+.col{padding:16px 18px;min-width:0}
+.col.left{border-right:1px solid var(--line)}
+.col.right{border-left:1px solid var(--line)}
+h2{font-size:14px;margin:0 0 10px;font-weight:700}
+h2 small{font-weight:400;color:var(--muted);font-size:12px;margin-left:6px}
+.blk{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--line)}
+.blk:last-child{border-bottom:0;margin-bottom:0}
+select,input[type=number]{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;color:var(--ink)}
+input[type=number]{padding:4px 6px}
+/* zone list */
+.zones{display:flex;flex-direction:column;gap:6px}
+.zone{display:grid;grid-template-columns:16px minmax(0,1fr) auto 30px;gap:4px 10px;align-items:start;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%}
+.zone:hover{border-color:#b8c3c7}
+.zone.on{background:#fff;border-color:var(--zc);box-shadow:inset 3px 0 0 var(--zc)}
+.zone .sw{width:16px;height:16px;border-radius:4px;background:var(--zc);margin-top:2px}
+.zone.canopy .sw{background:repeating-linear-gradient(45deg,var(--zc) 0 2px,#fff 2px 5px);border:1.5px dashed var(--zc)}
+.zone .nm{font-weight:600}
+.zone .ds{grid-column:2/4;grid-row:2;font-size:11.5px;color:var(--muted);line-height:1.4}
+.zone .ar{font-size:11.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* lock / edit toggle: same stroke icons as the platform's left navigation */
+.zone .lk{grid-column:4;grid-row:1/3;align-self:center;width:30px;height:30px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--teal);cursor:pointer;display:grid;place-items:center;padding:0}
+.zone .lk svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.zone .lk:hover{border-color:var(--teal)}
+.zone.locked .lk{color:#8a959a;background:#eef1f2}
+.zone.locked .nm,.zone.locked .ar{color:#7d898e}
+.zone.locked .sw{opacity:.45}
+.zone .key{display:inline-block;min-width:16px;padding:0 4px;margin-left:4px;border:1px solid var(--line);border-radius:4px;font-size:10.5px;color:var(--muted);text-align:center;background:#fff}
+.hint{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.45}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px}
+.kv span:nth-child(odd){color:var(--muted)}
+/* toolbar + plan */
+.center{display:flex;flex-direction:column;min-width:0}
+.toolbar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.tool{display:flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid transparent;border-radius:7px;background:none;font:inherit;cursor:pointer;color:var(--ink)}
+.tool:hover{background:#eef3f4}
+.tool.on{background:var(--teal-soft);border-color:var(--teal);color:var(--teal);font-weight:600}
+.tool:disabled{opacity:.35;cursor:not-allowed}
+.tool .k{font-size:10.5px;color:var(--muted)}
+.sepv{width:1px;height:22px;background:var(--line);margin:0 6px}
+.stage-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:14px 0 8px}
+.stage-head h3{margin:0;font-size:18px}
+.planwrap{position:relative;border:1px solid var(--line);border-radius:12px;background:#f6f8f8;overflow:hidden}
+#plan{display:block;width:100%;height:500px;touch-action:none;user-select:none;cursor:grab}
+#plan.draw{cursor:crosshair}
+#plan.panning{cursor:grabbing}
+#plan .zr{cursor:move}
+.plancap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:6px 2px 0;font-size:11.5px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:8px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:6px}
+/* evaluation cards */
+.evalp{margin-top:18px;border-top:2px solid var(--ink);padding-top:12px}
+.evalp .eh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.evalp .eh h2{margin:0}
+.ecards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+@media (max-width:1400px){.ecards{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:900px){.ecards{grid-template-columns:1fr}}
+.ecard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;border-top:3px solid var(--zc);background:#fff}
+.ecard h4{margin:0 0 6px;font-size:13px}
+.ecard .row{display:flex;justify-content:space-between;gap:8px;font-size:12px;padding:2px 0}
+.ecard .row b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ok{color:var(--green)} .bad{color:var(--red)} .mid{color:var(--warn)}
+.ecard .why{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4}
+/* inspector */
+.insp{display:grid;grid-template-columns:auto 1fr auto;gap:6px 8px;align-items:center;font-size:12px}
+.insp span{color:var(--muted)}
+.insp .u{color:var(--muted)}
+.empty{color:var(--muted);font-size:12px}
+.chk{display:flex;gap:8px;align-items:center;font-size:12px;margin:4px 0}
+.chk input[type=range]{flex:1}
+textarea{width:100%;min-height:54px;border:1px solid var(--line);border-radius:8px;font:inherit;padding:6px 8px;resize:vertical}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:8px 14px;border-radius:8px;font-size:12.5px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+#toast.show{opacity:1}
+@media (max-width:1180px){.sheet{grid-template-columns:1fr}.col.left,.col.right{border:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="top">
+  <div class="brand"><b>LTA-AAP</b><span>Against Air Pollution</span></div>
+  <div class="title"><h1>Zoning design</h1><div class="sub" id="stopline">–</div></div>
+  <div class="hd-actions">
+    <span id="state" class="clean">saved</span>
+    <button class="b" id="btnSave" title="Save this stop's zoning in this browser (Ctrl+S)">Save version</button>
+    <button class="b" id="btnImport">Import JSON</button>
+    <button class="b primary" id="btnExport">Export zones JSON →</button>
+    <input type="file" id="fileIn" accept=".json,application/json" hidden>
+  </div>
+</header>
+
+<div class="sheet">
+  <!-- LEFT: stop + zones -->
+  <div class="col left">
+    <div class="blk">
+      <h2>Stop</h2>
+      <select id="stopSel" aria-label="Bus stop"></select>
+      <div class="hint" id="stopHint">Same stops and reviewed baseline as the platform. A baseline saved in the platform (this browser) is used when present.</div>
+    </div>
+    <div class="blk">
+      <h2>Zones <small>pick one, then draw</small></h2>
+      <div class="zones" id="zoneList"></div>
+      <div class="hint">Lock a zone with the button on its right so it cannot be picked in the plan; the zones under it stay selectable. Zones may overlap and may extend beyond the canopy; each can hold several rectangles.</div>
+    </div>
+    <div class="blk">
+      <h2>Site condition card</h2>
+      <div class="kv" id="siteCard"></div>
+    </div>
+  </div>
+
+  <!-- CENTER: toolbar, plan, checks -->
+  <div class="col center">
+    <div class="toolbar" role="toolbar" aria-label="Plan tools">
+      <button class="tool" data-tool="select" title="Select / move / resize (V)">Select <span class="k">V</span></button>
+      <button class="tool" data-tool="draw" title="Draw a rectangle in the active zone (R)">Draw zone <span class="k">R</span></button>
+      <span class="sepv"></span>
+      <button class="tool" id="tDup" title="Duplicate (Ctrl+D)">Duplicate</button>
+      <button class="tool" id="tDel" title="Delete (Del)">Delete</button>
+      <button class="tool" id="tUndo" title="Undo (Ctrl+Z)">Undo</button>
+      <button class="tool" id="tRedo" title="Redo (Ctrl+Y)">Redo</button>
+      <span class="sepv"></span>
+      <button class="tool" id="tReset" title="Rebuild all five zones from the baseline">Reset from baseline</button>
+      <span class="sepv"></span>
+      <button class="tool" id="tDims" title="Show all dimensions (D)">Dimensions <span class="k">D</span></button>
+      <button class="tool" id="tSat" title="Satellite photo (S)">Satellite <span class="k">S</span></button>
+      <button class="tool" id="tFit" title="Fit the stop (F)">Fit <span class="k">F</span></button>
+    </div>
+    <div class="stage-head"><h3 id="stopName">–</h3><span class="sub" id="stopMeta"></span></div>
+    <div class="planwrap"><svg id="plan" xmlns="http://www.w3.org/2000/svg" aria-label="Bus stop plan with zones"></svg></div>
+    <div class="plancap"><span>Local frame: s along traffic (pole = 0, downstream +), y from the boarding kerb (footpath +). Snap 0.1 m, hold Alt to move freely.</span><span>Wheel = zoom · drag empty plan = pan</span></div>
+    <div class="legend" id="legend"></div>
+    <div class="evalp">
+      <div class="eh"><h2>Zone checks · against this layout</h2><span class="sub">Geometric checks only. Exposure still comes from Edit &amp; compare in the platform.</span></div>
+      <div class="ecards" id="cards"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: inspector + display -->
+  <div class="col right">
+    <div class="blk">
+      <h2>Selected zone</h2>
+      <div id="insp"><div class="empty">Select a rectangle in the plan.</div></div>
+    </div>
+    <div class="blk">
+      <h2>Display</h2>
+      <label class="chk"><input type="checkbox" id="dSat"> Satellite photo</label>
+      <label class="chk">Opacity <input type="range" id="dSatA" min="0.2" max="1" step="0.05"></label>
+      <label class="chk"><input type="checkbox" id="dBase" checked> Baseline (shelter, bollards, bus)</label>
+      <label class="chk"><input type="checkbox" id="dLab" checked> Zone labels</label>
+    </div>
+    <div class="blk">
+      <h2>How the five zones work</h2>
+      <div class="kv" id="zoneRules"></div>
+    </div>
+    <div class="blk">
+      <h2>Not yet</h2>
+      <div class="hint" style="margin-top:0">Export format and the hand-off to Design / GH will change. Zones are axis-aligned rectangles in the local frame; exposure is not computed here.</div>
+    </div>
+  </div>
+</div>
+</div>
+<div id="toast"></div>
+
+<script>
+const STOPS = /*__DATA__*/[];
+const SAT = /*__SAT__*/{};
+const FIXES = /*__FIXES__*/{};
+
+// ---------- config (same values as the platform) ----------
+const CFG = {SH_FRONT:0.45, SH_DEPTH:3.0, WA_INSET_S:0.6, WA_INSET_F:0.3, WA_INSET_B:0.4, DEFAULT_SH_LEN:10,
+             WALK:1.8, BUS_W:2.55, BUS_GAP:0.3, BUS_L:12, SNAP:0.1, GRID:0.1};
+const ZONES = [
+  {key:'boarding', name:'Boarding edge', key1:'1', col:'#1d63b8', desc:'kerb strip at the bus doors; short stay, must see the bus',
+   rule:'touches the kerb, spans the bus doors'},
+  {key:'crossing', name:'Crossing path', key1:'2', col:'#0f9aa0', desc:'pedestrians passing the stop; stays continuous and clear',
+   rule:`≥ ${1.8} m clear, continuous past the stop`},
+  {key:'waiting', name:'Waiting zone', key1:'3', col:'#e0a800', desc:'seats and standing; longest stay, placed in cleaner air',
+   rule:'away from the kerb, off the crossing path'},
+  {key:'filter', name:'Filtering zone', key1:'4', col:'#2f8f3a', desc:'screens / greenery between the exhaust and people',
+   rule:'between the kerb and the waiting zone'},
+  {key:'canopy', name:'Canopy area', key1:'5', col:'#6b7680', desc:'rain cover, an overlay over the other zones',
+   rule:'covers waiting; may extend over the others'},
+];
+const ZK = Object.fromEntries(ZONES.map(z => [z.key, z]));
+
+// ---------- helpers ----------
+const $ = s => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const num = (v, d=0) => { const x = parseFloat(v); return Number.isFinite(x) ? x : d; };
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const r1 = x => Math.round(x*10)/10;
+const r2 = x => Math.round(x*100)/100;
+const uid = () => Math.random().toString(36).slice(2, 9);
+const clone = o => JSON.parse(JSON.stringify(o));
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const has = v => v !== undefined && v !== null && v !== '';
+const Y = y => -y;
+function h(tag, attrs={}, parent){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 1700); }
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } },
+};
+
+// ---------- site geometry (same rules as the platform's siteOf) ----------
+function allFixes(){ return {...FIXES, ...(store.get('bsw.fixes') || {})}; }
+function siteOf(st){
+  const L0 = num(st.stop_zone_len_m, 18);
+  const z1 = has(st.zone_s_to) ? num(st.zone_s_to) : 0, z0 = has(st.zone_s_from) ? num(st.zone_s_from) : z1 - L0, L = r1(z1 - z0);
+  const isBay = st.stop_type_now === 'bay' && num(st.bay_depth_m) >= 0.8;
+  const bd = isBay ? clamp(num(st.bay_depth_m), 0, 6) : 0;
+  const taper = has(st.taper_m) ? clamp(num(st.taper_m), 0.5, 15) : clamp(bd*2.5, 3, 12);
+  const b0 = has(st.bay_s_from) ? num(st.bay_s_from) : z0 - taper, b1 = has(st.bay_s_to) ? num(st.bay_s_to) : z1 + taper;
+  const half = clamp(num(st.through_kerb_from_axis_m, 5), 2.5, 12);
+  const lanes = Math.max(1, Math.round(num(st.osm_lanes, 3)));
+  const rear = clamp(num(st.rear_depth_m), 0, 10);
+  const back = CFG.SH_FRONT + CFG.SH_DEPTH;
+  let sh0, sh1;
+  if (has(st.shelter_s_from) && has(st.shelter_s_to)) { sh0 = num(st.shelter_s_from); sh1 = num(st.shelter_s_to); }
+  else if (has(st.shelter_auto_from) && has(st.shelter_auto_to)) { sh0 = num(st.shelter_auto_from); sh1 = num(st.shelter_auto_to); }
+  else { sh0 = -1 - CFG.DEFAULT_SH_LEN; sh1 = -1; }
+  if (sh1 < sh0) [sh0, sh1] = [sh1, sh0];
+  const off = has(st.kerb_off_m) ? num(st.kerb_off_m) : num(st.d_road_axis_m) - num(st.kerb_from_axis_m);
+  return {L, z0, z1, isBay, bd, b0, b1, half, lanes, rear, back, footBack: back + rear, sh0, sh1,
+          noShelter: String(st.free_end).startsWith('n/a'), bearing: num(st.direction, 0), side: st.stop_side === 'right' ? -1 : 1,
+          taper, off, satRot: num(st.sat_rot_deg), shOff: num(st.shelter_off_m), poleDs: num(st.pole_ds_m),
+          berths: Math.max(1, Math.round(num(st.berths, 1)))};
+}
+function kerbLine(site, sMin, sMax){
+  if (!(site.bd > 0)) return [[sMin,0],[sMax,0]];
+  const T = Math.min(site.taper, (site.b1 - site.b0)/2);
+  return [[sMin,-site.bd],[site.b0,-site.bd],[site.b0+T,0],[site.b1-T,0],[site.b1,-site.bd],[sMax,-site.bd]];
+}
+// kerb height of the boarding edge at s (0 inside the bay, -bd outside)
+function kerbAt(site, s){
+  if (!(site.bd > 0)) return 0;
+  const T = Math.min(site.taper, (site.b1 - site.b0)/2);
+  if (s <= site.b0 || s >= site.b1) return -site.bd;
+  if (s < site.b0 + T) return -site.bd + site.bd*(s - site.b0)/T;
+  if (s > site.b1 - T) return -site.bd*(s - (site.b1 - T))/T;
+  return 0;
+}
+const shelterY = e => { const f = CFG.SH_FRONT + (e.off||0); return [f, f + CFG.SH_DEPTH]; };
+
+// baseline elements: the platform's saved baseline in this browser, else the same rule as makeBaseline
+function baselineOf(st, site){
+  const saved = store.get('bse.v2.' + st.stop_idx);
+  const els = saved && saved.saved && saved.saved.baseline && saved.saved.baseline.els;
+  if (els && els.length) return {src:'platform baseline (saved in this browser)', shelters: els.filter(e => e.type==='shelter'), bollards: els.filter(e => e.type==='bollard')};
+  const shelters = site.noShelter ? [] : [{s0:r1(site.sh0), s1:r1(site.sh1), off:site.shOff}];
+  const nb = Math.round(num(st.bollards_30m)), bollards = [];
+  if (nb > 0){
+    const ds = num(st.bollard_ds_m), a = (site.noShelter ? site.z0 : site.sh0) + ds, b = (site.noShelter ? site.z1 : site.sh1) + ds;
+    const n = Math.min(nb, Math.floor((b-a)/1.2) + 1);
+    for (let i=0;i<n;i++) bollards.push({s:r1(n>1 ? a + (b-a)*i/(n-1) : (a+b)/2), y:0.45 + site.shOff});
+  }
+  return {src:'stop_dataset_v2 + reviewed fixes', shelters, bollards};
+}
+
+// starting layout read from the baseline (a proposal to edit, not a design)
+function zonesFromBaseline(st, site, base){
+  const Z = {boarding:[], crossing:[], waiting:[], filter:[], canopy:[]};
+  const R = (s0, s1, y0, y1, note) => ({id:uid(), s0:r1(Math.min(s0,s1)), s1:r1(Math.max(s0,s1)), y0:r1(Math.min(y0,y1)), y1:r1(Math.max(y0,y1)), note:note||''});
+  const shs = base.shelters.slice().sort((a,b) => a.s0-b.s0);
+  const front = shs.length ? Math.min(...shs.map(x => shelterY(x)[0])) : CFG.SH_FRONT;
+  const back = shs.length ? Math.max(...shs.map(x => shelterY(x)[1])) : CFG.SH_FRONT + CFG.SH_DEPTH;
+  Z.boarding.push(R(site.z0, site.z1, 0, Math.max(0.6, front), 'stop zone, kerb to roof front'));
+  for (const x of shs){
+    const [f,b] = shelterY(x);
+    Z.canopy.push(R(x.s0, x.s1, f, b, 'existing roof'));
+    if (x.s1 - x.s0 > 2*CFG.WA_INSET_S + 0.5) Z.waiting.push(R(x.s0 + CFG.WA_INSET_S, x.s1 - CFG.WA_INSET_S, f + CFG.WA_INSET_F, b - CFG.WA_INSET_B, 'under the existing roof'));
+  }
+  if (!shs.length) Z.waiting.push(R(-9, -3, 1.0, 2.4, 'no shelter: kerbside waiting'));
+  const lo = Math.min(site.z0, shs.length ? shs[0].s0 : site.z0) - 6, hi = Math.max(site.z1, shs.length ? shs[shs.length-1].s1 : site.z1) + 6;
+  const route = st.walk_route || 'behind';
+  if (route === 'front') Z.crossing.push(R(lo, hi, front, front + CFG.WALK, 'walk route: in front of the roof'));
+  else if (route === 'through') Z.crossing.push(R(lo, hi, (front + back)/2 - CFG.WALK/2, (front + back)/2 + CFG.WALK/2, 'walk route: through the shelter'));
+  else Z.crossing.push(R(lo, hi, back, Math.min(back + CFG.WALK, Math.max(back + 0.6, site.footBack)), 'walk route: behind the roof'));
+  return Z;
+}
+
+// ---------- state ----------
+const prefs = store.get('zon.prefs') || {};
+const S = {stop:null, site:null, base:null, Z:null, saved:null, active:'waiting', sel:null, tool:'select',
+           hist:[], fut:[], satOn: prefs.satOn ?? true, satA: prefs.satA ?? 0.45, dims:false, showBase:true, labels:true,
+           vis:{boarding:true, crossing:true, waiting:true, filter:true, canopy:true}, vb:null, drag:null,
+           lock:{boarding:false, crossing:false, waiting:false, filter:false, canopy:false, ...(prefs.lock || {})}};
+const svg = $('#plan');
+const key = () => 'zon.v1.' + S.stop.stop_idx;
+// zoning saved before the rename of Through-path to Crossing path
+function normZones(z){ if (z && z.through && !z.crossing){ z.crossing = z.through; delete z.through; } for (const k of ZONES) z[k.key] = z[k.key] || []; return z; }
+const ICON = {
+  edit: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+};
+function toggleLock(zk){
+  S.lock[zk] = !S.lock[zk];
+  if (S.lock[zk] && S.sel && S.sel.zone === zk) S.sel = null;
+  savePrefs(); render(); renderPanels();
+}
+
+function loadStop(st){
+  S.stop = {...st, ...(allFixes()[st.stop_idx] || {})};
+  S.site = siteOf(S.stop); S.base = baselineOf(S.stop, S.site);
+  const saved = store.get(key());
+  S.saved = saved && saved.zones ? saved : null;
+  if (S.saved) normZones(S.saved.zones);
+  S.Z = S.saved ? clone(S.saved.zones) : zonesFromBaseline(S.stop, S.site, S.base);
+  S.hist = []; S.fut = []; S.sel = null; S.vb = null;
+  try { localStorage.setItem('zon.last', st.stop_idx); } catch(e){}
+  renderStatic(); fit(); render(); renderPanels();
+}
+function isDirty(){ return !S.saved || JSON.stringify(S.saved.zones) !== JSON.stringify(S.Z); }
+function push(){ S.hist.push(clone(S.Z)); if (S.hist.length > 80) S.hist.shift(); S.fut = []; }
+function undo(){ if (!S.hist.length) return; S.fut.push(clone(S.Z)); S.Z = S.hist.pop(); fixSel(); render(); renderPanels(); }
+function redo(){ if (!S.fut.length) return; S.hist.push(clone(S.Z)); S.Z = S.fut.pop(); fixSel(); render(); renderPanels(); }
+function fixSel(){ if (S.sel && !findRect(S.sel)) S.sel = null; }
+function findRect(sel){ if (!sel) return null; return (S.Z[sel.zone] || []).find(r => r.id === sel.id) || null; }
+
+// ---------- view ----------
+function extent(){
+  const site = S.site, all = [];
+  for (const k in S.Z) for (const r of S.Z[k]) all.push(r);
+  let a = Math.min(site.z0, site.sh0, site.bd > 0 ? site.b0 : site.z0), b = Math.max(0, site.z1, site.sh1, site.bd > 0 ? site.b1 : 0);
+  for (const r of all){ a = Math.min(a, r.s0); b = Math.max(b, r.s1); }
+  const yMin = -(site.bd + Math.min(2*site.half, 10)) - 0.3;
+  // deep rear space (up to 10 m) is not fitted: the zones sit within a few metres of the kerb
+  let yMax = Math.min(site.footBack, site.back + CFG.WALK + 2) + 1.2;
+  for (const r of all) yMax = Math.max(yMax, r.y1 + 1.2);
+  return {sMin: Math.floor(a - 3), sMax: Math.ceil(b + 3), yMin: Math.max(yMin, -(site.bd + 6)), yMax};
+}
+function fit(){
+  const e = extent(), W = svg.clientWidth || 900, H = svg.clientHeight || 500;
+  let w = e.sMax - e.sMin, hh = e.yMax - e.yMin;
+  if (w/hh > W/H) { const nh = w*H/W; e.yMin -= (nh-hh)/2; e.yMax += (nh-hh)/2; hh = nh; }
+  else { const nw = hh*W/H; e.sMin -= (nw-w)/2; e.sMax += (nw-w)/2; w = nw; }
+  S.vb = {x:e.sMin, y:Y(e.yMax), w, h:hh};
+}
+function applyVB(){ const v = S.vb; svg.setAttribute('viewBox', `${v.x} ${v.y} ${v.w} ${v.h}`); }
+function mPerPx(){ return S.vb.w / (svg.clientWidth || 900); }
+function toLocal(ev){
+  const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY;
+  const q = p.matrixTransform(svg.getScreenCTM().inverse());
+  return {s:q.x, y:-q.y};
+}
+const snap = (v, free) => free ? r2(v) : Math.round(v/CFG.SNAP)*CFG.SNAP;
+
+// ---------- satellite ----------
+const satUrl = {};
+function satHref(id){
+  if (!SAT[id]) return null;
+  if (SAT[id].href) return SAT[id].href;
+  if (!satUrl[id]){ const bin = atob(SAT[id].src.split(',')[1]), u8 = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i); satUrl[id] = URL.createObjectURL(new Blob([u8], {type:'image/jpeg'})); }
+  return satUrl[id];
+}
+
+// ---------- render ----------
+function label(p, s, y, t, px, anchor, fill, weight){
+  const u = mPerPx(), e = h('text', {x:s, y:Y(y), 'font-size':px*u, 'text-anchor':anchor||'start', fill:fill||'#182125', 'pointer-events':'none',
+    'font-family':'Segoe UI, Arial, sans-serif', 'font-weight':weight||400, stroke:'rgba(255,255,255,0.92)', 'stroke-width':3*u, 'paint-order':'stroke', 'stroke-linejoin':'round'}, p);
+  e.textContent = t; return e;
+}
+function renderStatic(){
+  const st = S.stop, site = S.site;
+  $('#stopline').textContent = `${st.stop_idx} · ${st.bus_stop_id} · ${st.stop_name}`;
+  $('#stopName').textContent = st.stop_name || st.stop_idx;
+  $('#stopMeta').textContent = `${st.stop_idx} · ${st.road_name || ''} · traffic bearing ${Math.round(site.bearing)}° · baseline: ${S.base.src}`;
+  const v = x => has(x) ? esc(x) : '–';
+  $('#siteCard').innerHTML = [
+    ['Prototype', v(st.prototype)], ['Free end', v(st.free_end)], ['Walk route', v(st.walk_route)], ['Rear space', v(st.rear_space)],
+    ['Rear depth', has(st.rear_depth_m) ? r1(num(st.rear_depth_m)) + ' m' : '–'], ['Stop zone', `${r1(site.L)} m · ${site.berths} berth${site.berths>1?'s':''}${site.isBay?' · bay':''}`],
+    ['Roof', site.noShelter ? 'none' : `${r1(site.sh1 - site.sh0)} m`], ['Bus types', v((st.bus_types||[]).join(' / '))],
+  ].map(([k, x]) => `<span>${k}</span><b style="font-weight:600">${x}</b>`).join('');
+}
+function render(){
+  if (!S.vb) fit();
+  applyVB();
+  const site = S.site, v = S.vb, u = mPerPx(), ns = {'vector-effect':'non-scaling-stroke'};
+  const sMin = v.x - 2, sMax = v.x + v.w + 2, yMax = -v.y + 2, yMin = -(v.y + v.h) - 2;
+  svg.innerHTML = '';
+  svg.classList.toggle('draw', S.tool === 'draw');
+  const defs = h('defs', {}, svg);
+  const pat = h('pattern', {id:'hatch', width:0.5, height:0.5, patternUnits:'userSpaceOnUse', patternTransform:'rotate(45)'}, defs);
+  h('rect', {width:0.5, height:0.5, fill:'rgba(107,118,128,0.10)'}, pat);
+  h('line', {x1:0, y1:0, x2:0, y2:0.5, stroke:'rgba(80,90,100,0.55)', 'stroke-width':0.06}, pat);
+  const mk = h('marker', {id:'mk', viewBox:'0 0 10 10', refX:8, refY:5, markerWidth:5, markerHeight:5, orient:'auto'}, defs);
+  h('path', {d:'M0,0 L10,5 L0,10 z', fill:'#182125'}, mk);
+  const base = h('g', {}, svg), zoneG = h('g', {}, svg), top = h('g', {}, svg), ui = h('g', {}, svg);
+  // road, footpath, rear
+  const kp = kerbLine(site, sMin, sMax);
+  h('rect', {x:sMin, y:Y(yMax), width:sMax-sMin, height:yMax-yMin, fill:'#d9dcdc'}, base);
+  h('path', {d:`M${kp.map(p => `${p[0]},${Y(p[1])}`).join(' L')} L${sMax},${Y(site.footBack)} L${sMin},${Y(site.footBack)} Z`, fill:'#f3f0e9'}, base);
+  h('rect', {x:sMin, y:Y(yMax), width:sMax-sMin, height:Math.max(0, yMax-site.footBack), fill:'#e7e3da'}, base);
+  const sat = S.satOn && satHref(S.stop.stop_idx);
+  if (sat){ const w = SAT[S.stop.stop_idx].w; h('image', {href:sat, x:-w/2 - site.poleDs, y:Y(site.off + w/2), width:w, height:w, preserveAspectRatio:'none', opacity:S.satA,
+    transform:`rotate(${-site.satRot} ${-site.poleDs} ${Y(site.off)})`, 'pointer-events':'none'}, base); }
+  h('line', {x1:sMin, x2:sMax, y1:Y(site.footBack), y2:Y(site.footBack), stroke:'#8a8a8a', 'stroke-width':1.2, 'stroke-dasharray':'2 3', ...ns}, base);
+  label(base, v.x + v.w - 10*u, site.footBack + 0.15, `${S.stop.rear_obstacle || 'rear edge'} · rear depth ${r1(site.rear)} m`, 11, 'end', '#6b7078');
+  const lw = 2*site.half/site.lanes;
+  for (let i=1;i<site.lanes;i++){ const y = -site.bd - i*lw; h('line', {x1:sMin, x2:sMax, y1:Y(y), y2:Y(y), stroke:'#ffffff', 'stroke-width':2, 'stroke-dasharray':'10 8', ...ns}, base); }
+  h('rect', {x:site.z0, y:Y(-0.15), width:site.L, height:2.9, fill:'none', stroke:'#c9a400', 'stroke-width':1.3, 'stroke-dasharray':'6 4', ...ns}, base);
+  label(base, site.z0 + 0.3, -2.8, `stop zone ${r1(site.L)} m`, 11, 'start', '#8a7000');
+  h('path', {d:`M${kp.map(p => `${p[0]},${Y(p[1])}`).join(' L')}`, fill:'none', stroke:'#2b2b2b', 'stroke-width':2.2, ...ns}, base);
+  if (S.showBase){
+    // existing roof outline, bollards, one schematic bus at the stop with its tailpipe
+    for (const x of S.base.shelters){ const [f,b] = shelterY(x); h('rect', {x:x.s0, y:Y(b), width:x.s1-x.s0, height:b-f, fill:'none', stroke:'#6f8fb8', 'stroke-width':1, 'stroke-dasharray':'4 3', ...ns}, base); }
+    for (const bo of S.base.bollards) h('circle', {cx:bo.s, cy:Y(bo.y), r:0.14, fill:'#8f9699'}, base);
+    const front = site.z1 - 0.5, yIn = -(CFG.BUS_GAP);
+    h('rect', {x:front - CFG.BUS_L, y:Y(yIn), width:CFG.BUS_L, height:CFG.BUS_W, fill:'#fff', stroke:'#4a4a4a', 'stroke-width':1.3, ...ns}, base);
+    label(base, front - CFG.BUS_L/2, yIn - CFG.BUS_W/2 - 0.12, 'bus at the stop (schematic)', 11, 'middle', '#4a4a4a');
+    const diesel = (S.stop.bus_types || ['SD']).length;
+    if (diesel) h('circle', {cx:front - CFG.BUS_L + 0.4, cy:Y(yIn - CFG.BUS_W + 0.25), r:0.2, fill:'#d7263d'}, base);
+  }
+  // pole
+  h('rect', {x:0.05, y:Y(1.1), width:0.7, height:0.7, fill:'#fff', stroke:'#182125', 'stroke-width':1.3, ...ns}, top);
+  h('path', {d:`M0.05,${Y(1.1)} l0.7,0.7 M0.75,${Y(1.1)} l-0.7,0.7`, stroke:'#182125', 'stroke-width':1.1, ...ns}, top);
+  label(top, 0.4, 1.25, 'pole', 11, 'middle');
+  // zones: canopy drawn over the others, the active zone on top. Locked zones take no clicks,
+  // so whatever lies under them (in any drawing order) can still be picked.
+  const order = ['crossing','boarding','filter','waiting','canopy'].filter(k => k !== S.active).concat(S.active);
+  for (const zk of order){
+    if (!S.vis[zk]) continue;
+    const z = ZK[zk], lk = S.lock[zk];
+    for (const r of S.Z[zk]){
+      const sel = S.sel && S.sel.zone === zk && S.sel.id === r.id, act = S.active === zk;
+      const pe = lk ? {'pointer-events':'none'} : {};
+      const attrs = zk === 'canopy'
+        ? {fill:'url(#hatch)', stroke:sel ? '#f08c00' : z.col, 'stroke-width':sel ? 2.4 : 1.6, 'stroke-dasharray':'7 4', 'stroke-opacity':lk ? 0.55 : 1, ...pe}
+        : {fill:z.col, 'fill-opacity':lk ? 0.12 : act ? 0.30 : 0.18, stroke:sel ? '#f08c00' : z.col, 'stroke-width':sel ? 2.4 : act ? 1.6 : 1.1, 'stroke-opacity':lk ? 0.55 : 1, ...pe};
+      const n = h('rect', {x:r.s0, y:Y(r.y1), width:r.s1-r.s0, height:r.y1-r.y0, class:'zr', ...attrs, ...ns}, zoneG);
+      n.dataset.zone = zk; n.dataset.id = r.id;
+      if (S.labels){
+        const tx = zk === 'canopy' ? r.s1 - 6*u : r.s0 + 6*u, ty = zk === 'canopy' ? r.y1 - 15*u : r.y0 + 5*u;
+        label(ui, tx, ty, z.name, 11.5, zk === 'canopy' ? 'end' : 'start', zk === 'waiting' ? '#7a5c00' : z.col, 600);
+      }
+    }
+  }
+  // selection: handles + dimensions
+  const sr = findRect(S.sel);
+  if (sr) handles(ui, sr);
+  if (S.dims) for (const zk in S.Z) if (S.vis[zk]) for (const r of S.Z[zk]) if (r !== sr) rectDims(ui, r, ZK[zk].col);
+  if (sr) rectDims(ui, sr, '#0b5394', true);
+  if (S.drag && S.drag.kind === 'new' && S.drag.rect) { const r = S.drag.rect; h('rect', {x:r.s0, y:Y(r.y1), width:r.s1-r.s0, height:r.y1-r.y0, fill:ZK[S.active].col, 'fill-opacity':0.25, stroke:ZK[S.active].col, 'stroke-width':1.6, 'stroke-dasharray':'4 3', ...ns}, ui); }
+  drawCompass(ui); drawScale(ui);
+}
+function handles(ui, r){
+  const u = mPerPx(), k = 5*u, ns = {'vector-effect':'non-scaling-stroke'};
+  const pts = {nw:[r.s0,r.y1], n:[(r.s0+r.s1)/2,r.y1], ne:[r.s1,r.y1], e:[r.s1,(r.y0+r.y1)/2], se:[r.s1,r.y0], s:[(r.s0+r.s1)/2,r.y0], sw:[r.s0,r.y0], w:[r.s0,(r.y0+r.y1)/2]};
+  const cur = {nw:'nwse', se:'nwse', ne:'nesw', sw:'nesw', n:'ns', s:'ns', e:'ew', w:'ew'};
+  for (const hk in pts){
+    const [s, y] = pts[hk];
+    const n = h('rect', {x:s-k, y:Y(y)-k, width:2*k, height:2*k, fill:'#fff', stroke:'#f08c00', 'stroke-width':1.5, ...ns, style:`cursor:${cur[hk]}-resize`}, ui);
+    n.dataset.handle = hk;
+  }
+}
+function dimLine(p, s0, s1, y, text, col, vert){
+  const u = mPerPx(), k = 4*u, ns = {'vector-effect':'non-scaling-stroke'};
+  if (!vert){
+    h('line', {x1:s0, x2:s1, y1:Y(y), y2:Y(y), stroke:col, 'stroke-width':1, ...ns, 'pointer-events':'none'}, p);
+    for (const s of [s0,s1]) h('line', {x1:s-k, x2:s+k, y1:Y(y-k), y2:Y(y+k), stroke:col, 'stroke-width':1.4, ...ns}, p);
+    label(p, (s0+s1)/2, y + 4*u, text, 11.5, 'middle', col, 600);
+  } else {
+    h('line', {x1:s0, x2:s0, y1:Y(s1), y2:Y(y), stroke:col, 'stroke-width':1, ...ns, 'pointer-events':'none'}, p);
+    for (const yy of [s1, y]) h('line', {x1:s0-k, x2:s0+k, y1:Y(yy-k), y2:Y(yy+k), stroke:col, 'stroke-width':1.4, ...ns}, p);
+    label(p, s0 - 6*u, (s1+y)/2 - 4*u, text, 11.5, 'end', col, 600);
+  }
+}
+function rectDims(ui, r, col, strong){
+  const u = mPerPx();
+  dimLine(ui, r.s0, r.s1, r.y1 + 14*u, `${r1(r.s1-r.s0)} m`, col);
+  dimLine(ui, r.s0 - 12*u, r.y0, r.y1, `${r1(r.y1-r.y0)} m`, col, true);
+  if (strong){
+    const k = kerbAt(S.site, (r.s0+r.s1)/2);
+    if (r.y0 - k > 0.05) dimLine(ui, r.s1 + 14*u, k, r.y0, `${r1(r.y0 - k)} m from kerb`, '#b45309', true);
+  }
+}
+function drawCompass(ui){
+  const v = S.vb, u = mPerPx(), r = 16*u, ns = {'vector-effect':'non-scaling-stroke'};
+  const cx = v.x + v.w - 30*u, cy = -(v.y + v.h) + 34*u, th = S.site.bearing*Math.PI/180;
+  const n = {s:Math.cos(th), y:S.site.side*Math.sin(th)};
+  h('circle', {cx, cy:Y(cy), r:r+3*u, fill:'rgba(255,255,255,0.92)', stroke:'#c8c8c8', 'stroke-width':1, ...ns}, ui);
+  h('line', {x1:cx-n.s*0.6*r, y1:Y(cy-n.y*0.6*r), x2:cx+n.s*0.55*r, y2:Y(cy+n.y*0.55*r), stroke:'#182125', 'stroke-width':1.6, 'marker-end':'url(#mk)', ...ns}, ui);
+  label(ui, cx+n.s*0.9*r, cy+n.y*0.9*r-4*u, 'N', 10, 'middle');
+  const tx = cx - r - 16*u;
+  h('rect', {x:tx-64*u, y:Y(cy+14*u), width:64*u, height:30*u, rx:4*u, fill:'rgba(255,255,255,0.92)'}, ui);
+  h('line', {x1:tx-56*u, y1:Y(cy-7*u), x2:tx-8*u, y2:Y(cy-7*u), stroke:'#182125', 'stroke-width':1.6, 'marker-end':'url(#mk)', ...ns}, ui);
+  label(ui, tx-32*u, cy+2*u, 'traffic', 10.5, 'middle');
+}
+function drawScale(ui){
+  const v = S.vb, u = mPerPx(), L = [1,2,5,10,20].reduce((a, c) => c <= 130*u ? c : a, 1), x = v.x + 16*u, y = -(v.y + v.h) + 12*u, q = L/4;
+  h('rect', {x:x-8*u, y:Y(y+30*u), width:L+34*u, height:36*u, rx:4*u, fill:'rgba(255,255,255,0.9)'}, ui);
+  for (let i=0;i<4;i++) h('rect', {x:x+i*q, y:Y(y+6*u), width:q, height:6*u, fill:i%2?'#fff':'#182125', stroke:'#182125', 'stroke-width':0.8, 'vector-effect':'non-scaling-stroke'}, ui);
+  for (const m of [0, L/2, L]) label(ui, x+m, y+11*u, String(m), 10, 'middle');
+  label(ui, x+L+7*u, y+11*u, 'm', 10, 'start');
+}
+
+// ---------- metrics (0.1 m raster) ----------
+function metrics(){
+  const site = S.site, all = [];
+  for (const k in S.Z) for (const r of S.Z[k]) all.push(r);
+  if (!all.length) return null;
+  const g = CFG.GRID, s0 = Math.floor(Math.min(...all.map(r => r.s0))), s1 = Math.ceil(Math.max(...all.map(r => r.s1)));
+  const y0 = Math.floor(Math.min(...all.map(r => r.y0))), y1 = Math.ceil(Math.max(...all.map(r => r.y1)));
+  const nx = Math.max(1, Math.round((s1-s0)/g)), ny = Math.max(1, Math.round((y1-y0)/g)), A = g*g;
+  const mask = {};
+  for (const k in S.Z){
+    const m = new Uint8Array(nx*ny);
+    for (const r of S.Z[k]){
+      const i0 = clamp(Math.round((r.s0-s0)/g), 0, nx), i1 = clamp(Math.round((r.s1-s0)/g), 0, nx), j0 = clamp(Math.round((r.y0-y0)/g), 0, ny), j1 = clamp(Math.round((r.y1-y0)/g), 0, ny);
+      for (let j=j0;j<j1;j++) m.fill(1, j*nx + i0, j*nx + i1);
+    }
+    mask[k] = m;
+  }
+  const area = k => { let n = 0; for (const x of mask[k]) n += x; return n*A; };
+  const inter = (a, b) => { let n = 0; const A1 = mask[a], B1 = mask[b]; for (let q=0;q<A1.length;q++) n += A1[q] & B1[q]; return n*A; };
+  const out = {area:{}};
+  for (const k in mask) out.area[k] = area(k);
+  const W = S.Z.waiting, wa = out.area.waiting;
+  out.waitCanopy = wa > 0 ? inter('waiting','canopy')/wa : null;
+  out.waitThrough = inter('waiting','crossing');
+  out.waitBoard = inter('waiting','boarding');
+  out.waitKerb = W.length ? Math.min(...W.map(r => r.y0 - Math.max(kerbAt(site, r.s0), kerbAt(site, r.s1)))) : null;
+  // filtering: share of the waiting length with a filter rectangle between the kerb and the waiting zone
+  let wl = 0, sh = 0;
+  for (const r of W){
+    for (let s = r.s0 + g/2; s < r.s1; s += g){
+      wl += g;
+      if (S.Z.filter.some(f => f.s0 <= s && f.s1 >= s && f.y0 < r.y0 + 0.05 && f.y1 > kerbAt(site, s) + 0.05)) sh += g;
+    }
+  }
+  out.shield = wl > 0 ? sh/wl : null;
+  // crossing path: narrowest clear width and the longest continuous run along s
+  const T = S.Z.crossing;
+  out.thMin = T.length ? Math.min(...T.map(r => r.y1 - r.y0)) : null;
+  let run = 0, best = 0;
+  for (let i=0;i<nx;i++){ let col = false; for (let j=0;j<ny && !col;j++) col = mask.crossing[j*nx+i] === 1; run = col ? run + g : 0; best = Math.max(best, run); }
+  out.thRun = best;
+  out.thBlocked = inter('crossing','waiting') + inter('crossing','filter');
+  // boarding: on the kerb, share of the stop zone covered, rain cover over it
+  const B = S.Z.boarding;
+  out.bdKerb = B.length ? Math.max(...B.map(r => r.y0 - kerbAt(site, (r.s0+r.s1)/2))) : null;
+  let zc = 0, zl = 0;
+  for (let s = site.z0 + g/2; s < site.z1; s += g){ zl += g; if (B.some(r => r.s0 <= s && r.s1 >= s)) zc += g; }
+  out.bdZone = zl > 0 ? zc/zl : null;
+  out.bdRain = out.area.boarding > 0 ? inter('boarding','canopy')/out.area.boarding : null;
+  out.canBeyond = out.area.canopy - inter('canopy','waiting') - inter('canopy','boarding') - inter('canopy','crossing') - inter('canopy','filter');
+  return out;
+}
+const P = x => x == null ? '–' : Math.round(x*100) + '%';
+const M2 = x => x == null ? '–' : r1(x) + ' m²';
+const Mm = x => x == null ? '–' : r1(x) + ' m';
+function cls(ok, mid){ return ok ? 'ok' : mid ? 'mid' : 'bad'; }
+function renderCards(){
+  const m = metrics(), el = $('#cards');
+  if (!m){ el.innerHTML = '<div class="empty">No zones yet.</div>'; return; }
+  const row = (k, val, c) => `<div class="row"><span>${k}</span><b class="${c||''}">${val}</b></div>`;
+  const card = (zk, rows, why) => `<div class="ecard" style="--zc:${ZK[zk].col}"><h4>${ZK[zk].name}</h4>${rows.join('')}<div class="why">${why}</div></div>`;
+  el.innerHTML = [
+    card('waiting', [row('Area', M2(m.area.waiting)),
+      row('Nearest to kerb', Mm(m.waitKerb), m.waitKerb == null ? '' : cls(m.waitKerb >= 1.5, m.waitKerb >= 0.9)),
+      row('Under canopy', P(m.waitCanopy), m.waitCanopy == null ? '' : cls(m.waitCanopy >= 0.8, m.waitCanopy >= 0.5)),
+      row('On crossing path', M2(m.waitThrough), cls(m.waitThrough < 0.05, m.waitThrough < 1))],
+      'Further from the kerb is cleaner air (the gradient is steep within a few metres).'),
+    card('crossing', [row('Narrowest', Mm(m.thMin), m.thMin == null ? '' : cls(m.thMin >= CFG.WALK - 0.01, m.thMin >= 1.5)),
+      row('Continuous run', Mm(m.thRun)),
+      row('Blocked by waiting / filter', M2(m.thBlocked), cls(m.thBlocked < 0.05, m.thBlocked < 1))],
+      `Clear width target ${CFG.WALK} m (platform WALK value).`),
+    card('boarding', [row('Gap to kerb', Mm(m.bdKerb), m.bdKerb == null ? '' : cls(m.bdKerb <= 0.05, m.bdKerb <= 0.3)),
+      row('Stop zone covered', P(m.bdZone), m.bdZone == null ? '' : cls(m.bdZone >= 0.95, m.bdZone >= 0.7)),
+      row('Rain cover over it', P(m.bdRain))],
+      'Must stay on the kerb along the bus doors; rain cover here is optional.'),
+    card('filter', [row('Area', M2(m.area.filter)),
+      row('Shields waiting length', P(m.shield), m.shield == null ? '' : cls(m.shield >= 0.8, m.shield >= 0.4))],
+      'Counts where a filter lies between the kerb and the waiting zone.'),
+    card('canopy', [row('Area', M2(m.area.canopy)),
+      row('Covers waiting', P(m.waitCanopy)),
+      row('Over no zone', M2(Math.max(0, m.canBeyond)))],
+      'Overlay: may extend beyond the other zones.'),
+  ].join('');
+}
+function renderZoneList(){
+  const m = metrics();
+  $('#zoneList').innerHTML = ZONES.map(z => { const lk = S.lock[z.key]; return `<div class="zone ${z.key}${S.active===z.key?' on':''}${lk?' locked':''}" style="--zc:${z.col}" data-z="${z.key}" role="button" tabindex="0" aria-pressed="${S.active===z.key}">
+    <span class="sw"></span><span class="nm">${z.name}<span class="key">${z.key1}</span></span>
+    <span class="ar">${S.Z[z.key].length} · ${m ? r1(m.area[z.key]) : 0} m²</span>
+    <button class="lk" data-lock="${z.key}" aria-pressed="${lk}" title="${lk ? 'Locked: not selectable in the plan. Click to edit' : 'Editable. Click to lock'} (L toggles the active zone)">${lk ? ICON.lock : ICON.edit}</button>
+    <span class="ds">${z.desc}</span></div>`; }).join('');
+  for (const b of $('#zoneList').querySelectorAll('.zone')){
+    const pick = () => { S.active = b.dataset.z; const r = !S.lock[S.active] && S.Z[S.active][0]; S.sel = r ? {zone:S.active, id:r.id} : null; render(); renderPanels(); };
+    b.onclick = pick;
+    b.onkeydown = e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === b){ e.preventDefault(); pick(); } };
+  }
+  for (const l of $('#zoneList').querySelectorAll('.lk')) l.onclick = e => { e.stopPropagation(); toggleLock(l.dataset.lock); };
+  $('#legend').innerHTML = ZONES.map(z => `<label style="cursor:pointer"><input type="checkbox" data-vis="${z.key}" ${S.vis[z.key]?'checked':''} style="vertical-align:-2px;margin-right:4px"><i style="background:${z.key==='canopy' ? `repeating-linear-gradient(45deg,${z.col} 0 2px,#fff 2px 5px)` : z.col};${z.key==='canopy'?'':'opacity:.7'}"></i>${z.name}</label>`).join('')
+    + `<span><i style="background:#fff;border:1px dashed #6f8fb8"></i>existing roof</span><span><i style="background:#d7263d;border-radius:50%;width:10px"></i>tailpipe (schematic)</span>`;
+  for (const c of $('#legend').querySelectorAll('input[data-vis]')) c.onchange = () => { S.vis[c.dataset.vis] = c.checked; if (!c.checked && S.sel && S.sel.zone === c.dataset.vis) S.sel = null; render(); renderPanels(); };
+}
+function renderInspector(){
+  const r = findRect(S.sel), el = $('#insp');
+  if (!r){ el.innerHTML = `<div class="empty">Select a rectangle in the plan, or pick <b>Draw zone</b> to add one to <b style="color:${ZK[S.active].col}">${ZK[S.active].name}</b>.</div>`; return; }
+  const z = ZK[S.sel.zone];
+  const f = (k, lab) => `<span>${lab}</span><input type="number" step="0.1" data-k="${k}" value="${r1(r[k])}"><span class="u">m</span>`;
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><i style="width:14px;height:14px;border-radius:3px;background:${z.col}"></i><b>${z.name}</b><span class="sub">${S.Z[S.sel.zone].indexOf(r)+1} of ${S.Z[S.sel.zone].length}</span></div>
+    <div class="insp">${f('s0','From s')}${f('s1','To s')}${f('y0','Kerb side y')}${f('y1','Rear side y')}
+    <span>Length</span><b>${r1(r.s1-r.s0)}</b><span class="u">m</span><span>Depth</span><b>${r1(r.y1-r.y0)}</b><span class="u">m</span><span>Area</span><b>${r1((r.s1-r.s0)*(r.y1-r.y0))}</b><span class="u">m²</span></div>
+    <div style="margin-top:10px"><span class="sub">Move to zone</span><select id="mvZone">${ZONES.map(x => `<option value="${x.key}" ${x.key===S.sel.zone?'selected':''}>${x.name}</option>`).join('')}</select></div>
+    <div style="margin-top:8px"><span class="sub">Note</span><textarea id="note" placeholder="e.g. planter 0.8 m high">${esc(r.note)}</textarea></div>
+    <div class="btns" style="margin-top:8px"><button class="b" id="iDup">Duplicate</button><button class="b" id="iDel">Delete</button></div>`;
+  for (const inp of el.querySelectorAll('input[data-k]')) inp.onchange = () => {
+    push(); r[inp.dataset.k] = num(inp.value, r[inp.dataset.k]);
+    if (r.s1 < r.s0) [r.s0, r.s1] = [r.s1, r.s0]; if (r.y1 < r.y0) [r.y0, r.y1] = [r.y1, r.y0];
+    render(); renderPanels();
+  };
+  $('#mvZone').onchange = e => { push(); const to = e.target.value; S.Z[S.sel.zone] = S.Z[S.sel.zone].filter(x => x !== r); S.Z[to].push(r); S.sel = {zone:to, id:r.id}; S.active = to; render(); renderPanels(); };
+  $('#note').onchange = e => { push(); r.note = e.target.value; renderState(); };
+  $('#iDup').onclick = dup; $('#iDel').onclick = del;
+}
+function renderState(){
+  const d = isDirty();
+  $('#state').className = d ? 'dirty' : 'clean';
+  $('#state').textContent = d ? (S.saved ? 'unsaved changes' : 'not saved yet') : 'saved';
+  $('#tUndo').disabled = !S.hist.length; $('#tRedo').disabled = !S.fut.length;
+  $('#tDel').disabled = $('#tDup').disabled = !findRect(S.sel);
+  for (const b of document.querySelectorAll('.tool[data-tool]')) b.classList.toggle('on', b.dataset.tool === S.tool);
+  $('#tDims').classList.toggle('on', S.dims); $('#tSat').classList.toggle('on', S.satOn);
+  $('#tSat').disabled = !SAT[S.stop.stop_idx];
+  $('#dSat').checked = S.satOn; $('#dSatA').value = S.satA;
+}
+function renderPanels(){ renderZoneList(); renderInspector(); renderCards(); renderState(); }
+
+// ---------- editing ----------
+function dup(){ const r = findRect(S.sel); if (!r) return; push(); const c = {...clone(r), id:uid(), s0:r1(r.s0 + 1), s1:r1(r.s1 + 1)}; S.Z[S.sel.zone].push(c); S.sel = {zone:S.sel.zone, id:c.id}; render(); renderPanels(); }
+function del(){ const r = findRect(S.sel); if (!r) return; push(); S.Z[S.sel.zone] = S.Z[S.sel.zone].filter(x => x !== r); S.sel = null; render(); renderPanels(); }
+function setTool(t){ S.tool = t; render(); renderState(); }
+
+svg.addEventListener('pointerdown', ev => {
+  if (ev.button !== 0) return;
+  const p = toLocal(ev), t = ev.target, free = ev.altKey;
+  try { svg.setPointerCapture(ev.pointerId); } catch(e){}
+  if (t.dataset.handle){ const r = findRect(S.sel); S.drag = {kind:'resize', hk:t.dataset.handle, r, start:clone(r), pushed:false}; return; }
+  if (S.tool === 'draw'){
+    if (S.lock[S.active]){ toast(ZK[S.active].name + ' is locked: click its lock to edit'); return; }
+    if (!S.vis[S.active]){ S.vis[S.active] = true; }
+    S.drag = {kind:'new', a:{s:snap(p.s, free), y:snap(p.y, free)}, rect:null}; return;
+  }
+  if (t.dataset && t.dataset.zone){
+    S.sel = {zone:t.dataset.zone, id:t.dataset.id}; S.active = t.dataset.zone;
+    const r = findRect(S.sel);
+    S.drag = {kind:'move', r, p0:p, start:clone(r), pushed:false};
+    render(); renderPanels(); return;
+  }
+  if (S.sel){ S.sel = null; render(); renderPanels(); }
+  S.drag = {kind:'pan', c0:{x:ev.clientX, y:ev.clientY}, vb0:{...S.vb}}; svg.classList.add('panning');
+});
+svg.addEventListener('pointermove', ev => {
+  const d = S.drag; if (!d) return;
+  const free = ev.altKey;
+  if (d.kind === 'pan'){ const k = mPerPx(); S.vb.x = d.vb0.x - (ev.clientX - d.c0.x)*k; S.vb.y = d.vb0.y - (ev.clientY - d.c0.y)*k; render(); return; }
+  const p = toLocal(ev);
+  if (d.kind === 'new'){ const b = {s:snap(p.s, free), y:snap(p.y, free)}; d.rect = {s0:Math.min(d.a.s,b.s), s1:Math.max(d.a.s,b.s), y0:Math.min(d.a.y,b.y), y1:Math.max(d.a.y,b.y)}; render(); return; }
+  if (!d.pushed){ S.hist.push(clone(S.Z)); S.fut = []; d.pushed = true; }
+  const r = d.r, st = d.start;
+  if (d.kind === 'move'){
+    const ds = snap(p.s - d.p0.s, free), dy = snap(p.y - d.p0.y, free);
+    r.s0 = r2(st.s0 + ds); r.s1 = r2(st.s1 + ds); r.y0 = r2(st.y0 + dy); r.y1 = r2(st.y1 + dy);
+  } else if (d.kind === 'resize'){
+    const s = snap(p.s, free), y = snap(p.y, free), hk = d.hk, MIN = 0.2;
+    if (hk.includes('w')) r.s0 = Math.min(s, r.s1 - MIN);
+    if (hk.includes('e')) r.s1 = Math.max(s, r.s0 + MIN);
+    if (hk.includes('s')) r.y0 = Math.min(y, r.y1 - MIN);
+    if (hk.includes('n')) r.y1 = Math.max(y, r.y0 + MIN);
+  }
+  render();
+});
+function endDrag(){
+  const d = S.drag; S.drag = null; svg.classList.remove('panning');
+  if (!d) return;
+  if (d.kind === 'new'){
+    if (d.rect && d.rect.s1 - d.rect.s0 >= 0.3 && d.rect.y1 - d.rect.y0 >= 0.3){
+      push(); const r = {id:uid(), ...Object.fromEntries(Object.entries(d.rect).map(([k,v]) => [k, r2(v)])), note:''};
+      S.Z[S.active].push(r); S.sel = {zone:S.active, id:r.id}; S.tool = 'select';
+    }
+    render();
+  }
+  renderPanels();
+}
+svg.addEventListener('pointerup', endDrag);
+svg.addEventListener('pointercancel', endDrag);
+svg.addEventListener('wheel', ev => {
+  ev.preventDefault();
+  const p = toLocal(ev), k = Math.exp(ev.deltaY*0.0015), v = S.vb;
+  const nw = clamp(v.w*k, 4, 400), f = nw/v.w;
+  v.x = p.s - (p.s - v.x)*f; v.y = -p.y - (-p.y - v.y)*f; v.w = nw; v.h = v.h*f;
+  render();
+}, {passive:false});
+window.addEventListener('resize', () => { fit(); render(); });
+
+// ---------- save / export / import ----------
+function payload(){
+  const st = S.stop, site = S.site, m = metrics();
+  return {schema:'lta-aap.zoning.v0', note:'draft format: will change when zoning is linked into Edit & compare / Design',
+    stop_idx: st.stop_idx, bus_stop_id: st.bus_stop_id, stop_name: st.stop_name, prototype: st.prototype,
+    frame: {s:'along traffic, pole = 0, downstream +', y:'from the boarding kerb, footpath +', unit:'m', bearing_deg: r1(site.bearing), stop_side: st.stop_side,
+            x3414: st.x3414, y3414: st.y3414},
+    baseline_source: S.base.src,
+    zones: Object.fromEntries(ZONES.map(z => [z.key, S.Z[z.key].map(r => ({s0:r2(r.s0), s1:r2(r.s1), y0:r2(r.y0), y1:r2(r.y1), note:r.note||''}))])),
+    checks: m && {area_m2: Object.fromEntries(Object.entries(m.area).map(([k,v]) => [k, r1(v)])), waiting_min_from_kerb_m: m.waitKerb == null ? null : r2(m.waitKerb),
+      waiting_under_canopy: m.waitCanopy == null ? null : r2(m.waitCanopy), waiting_shielded_by_filter: m.shield == null ? null : r2(m.shield),
+      crossing_min_width_m: m.thMin == null ? null : r2(m.thMin), boarding_stop_zone_cover: m.bdZone == null ? null : r2(m.bdZone)},
+    saved_at: new Date().toISOString()};
+}
+function save(){ S.saved = {zones: clone(S.Z), at: new Date().toISOString()}; if (store.set(key(), S.saved)) toast('Zoning saved for ' + S.stop.stop_idx); else toast('Could not save (browser storage blocked)'); renderState(); }
+$('#btnSave').onclick = save;
+$('#btnExport').onclick = () => {
+  const blob = new Blob([JSON.stringify(payload(), null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${S.stop.stop_idx}_zoning.json`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('Exported ' + a.download);
+};
+$('#btnImport').onclick = () => $('#fileIn').click();
+$('#fileIn').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  try {
+    const d = JSON.parse(await f.text());
+    if (!d.zones) throw new Error('no zones');
+    if (d.stop_idx && d.stop_idx !== S.stop.stop_idx){ const st = STOPS.find(x => x.stop_idx === d.stop_idx); if (!st) throw new Error('stop ' + d.stop_idx + ' not in this build'); $('#stopSel').value = d.stop_idx; loadStop(st); }
+    push();
+    for (const z of ZONES) S.Z[z.key] = (d.zones[z.key] || (z.key === 'crossing' && d.zones.through) || []).map(r => ({id:uid(), s0:num(r.s0), s1:num(r.s1), y0:num(r.y0), y1:num(r.y1), note:r.note||''}));
+    S.sel = null; render(); renderPanels(); toast('Imported ' + f.name);
+  } catch(err){ toast('Import failed: ' + err.message); }
+};
+
+// ---------- controls ----------
+for (const b of document.querySelectorAll('.tool[data-tool]')) b.onclick = () => setTool(b.dataset.tool);
+$('#tDup').onclick = dup; $('#tDel').onclick = del; $('#tUndo').onclick = undo; $('#tRedo').onclick = redo;
+$('#tReset').onclick = () => { if (!confirm('Replace all five zones with the starting layout from the baseline?')) return; push(); S.Z = zonesFromBaseline(S.stop, S.site, S.base); S.sel = null; render(); renderPanels(); };
+$('#tDims').onclick = () => { S.dims = !S.dims; render(); renderState(); };
+function savePrefs(){ store.set('zon.prefs', {satOn:S.satOn, satA:S.satA, lock:S.lock}); }
+$('#tSat').onclick = () => { S.satOn = !S.satOn; savePrefs(); render(); renderState(); };
+$('#tFit').onclick = () => { fit(); render(); };
+$('#dSat').onchange = e => { S.satOn = e.target.checked; savePrefs(); render(); renderState(); };
+$('#dSatA').oninput = e => { S.satA = num(e.target.value, 0.6); savePrefs(); render(); };
+$('#dBase').onchange = e => { S.showBase = e.target.checked; render(); };
+$('#dLab').onchange = e => { S.labels = e.target.checked; render(); };
+$('#zoneRules').innerHTML = ZONES.map(z => `<span style="color:${z.col};font-weight:600">${z.name}</span><span>${z.rule}</span>`).join('');
+document.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  const c = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
+  if (c && k === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (c && k === 'y'){ e.preventDefault(); redo(); return; }
+  if (c && k === 's'){ e.preventDefault(); save(); return; }
+  if (c && k === 'd'){ e.preventDefault(); dup(); return; }
+  if (c) return;
+  if (k === 'delete' || k === 'backspace'){ e.preventDefault(); del(); }
+  else if (k === 'v') setTool('select');
+  else if (k === 'r') setTool('draw');
+  else if (k === 'd'){ S.dims = !S.dims; render(); renderState(); }
+  else if (k === 's' && SAT[S.stop.stop_idx]){ S.satOn = !S.satOn; savePrefs(); render(); renderState(); }
+  else if (k === 'f'){ fit(); render(); }
+  else if (k === 'escape'){ S.sel = null; S.tool = 'select'; render(); renderPanels(); }
+  else if (/^[1-5]$/.test(k)){ S.active = ZONES[+k-1].key; render(); renderPanels(); }
+  else if (k === 'l') toggleLock(S.active);
+  else if (k.startsWith('arrow') && findRect(S.sel)){
+    e.preventDefault(); const r = findRect(S.sel), st = e.shiftKey ? 1 : CFG.SNAP; push();
+    const ds = k === 'arrowleft' ? -st : k === 'arrowright' ? st : 0, dy = k === 'arrowup' ? st : k === 'arrowdown' ? -st : 0;
+    r.s0 = r2(r.s0 + ds); r.s1 = r2(r.s1 + ds); r.y0 = r2(r.y0 + dy); r.y1 = r2(r.y1 + dy); render(); renderPanels();
+  }
+});
+window.addEventListener('beforeunload', e => { if (S.stop && S.saved && isDirty()){ e.preventDefault(); e.returnValue = ''; } });
+
+// ---------- start ----------
+const sel = $('#stopSel');
+sel.innerHTML = STOPS.map(s => `<option value="${esc(s.stop_idx)}">${esc(s.stop_idx)} · ${esc(s.stop_name)}${s.demo_op ? ' · demo' : ''} · ${esc(s.prototype)}</option>`).join('');
+sel.onchange = () => {
+  if (S.saved && isDirty() && !confirm('Leave this stop without saving the zoning?')){ sel.value = S.stop.stop_idx; return; }
+  loadStop(STOPS.find(s => s.stop_idx === sel.value));
+};
+let first = null; try { first = localStorage.getItem('zon.last'); } catch(e){}
+const st0 = STOPS.find(s => s.stop_idx === (new URLSearchParams(location.search).get('stop') || first)) || STOPS[0];
+if (STOPS.length === 1){
+  sel.disabled = true;
+  $('#stopHint').textContent = 'Single-stop build (make_zoning.py --stops). Reviewed baseline from the platform; a baseline saved in the platform (this browser) is used when present.';
+}
+if (st0){ sel.value = st0.stop_idx; loadStop(st0); }
+else { $('#stopline').textContent = 'No stop data in this build: run make_zoning.py'; }
+</script>
+</body>
+</html>

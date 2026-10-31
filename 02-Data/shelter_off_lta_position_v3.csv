@@ -1,0 +1,47 @@
+﻿stop_idx,bus_stop_id,stop_name,berths,shelter_src,shelter_s_from,shelter_s_to,roof_end_off_m,side,level,datamall_off_roof_m,check_first
+P046,54269,OPP ANG MO KIO STN,3.0,manual,46.0,61.0,62.5,past (toward / over the pole),red >8 m,48.1,yes
+P029,82011,AFT PAYA LEBAR QUARTER,1.0,manual,42.0,54.5,56.0,past (toward / over the pole),red >8 m,55.4,yes
+P038,17171,CLEMENTI STN EXIT A/MALL,3.0,manual,1.0,45.0,46.5,past (toward / over the pole),red >8 m,19.2,yes
+P019,22491,BLK 662D,1.0,manual,-40.5,-32.5,31.0,short (further upstream),red >8 m,108.4,yes
+P007,59072,YISHUN STN EXIT E,1.0,manual,16.0,25.5,27.0,past (toward / over the pole),red >8 m,5.2,yes
+P095,3041,TELOK AYER STN EXIT A,1.0,manual,9.5,21.0,22.5,past (toward / over the pole),red >8 m,23.8,yes
+P056,46339,BEF W'LANDS STN EXIT 7,1.0,manual,-30.0,-19.0,17.5,short (further upstream),red >8 m,15.9,yes
+P010,59159,OPP YISHUN STN EXIT B,1.0,manual,3.5,12.5,14.0,past (toward / over the pole),red >8 m,7.4,yes
+P072,44731,OPP BLK 180,1.0,manual,0.0,12.5,14.0,past (toward / over the pole),red >8 m,20.9,yes
+P094,5319,OCBC CTR,1.0,manual,-20.5,-15.0,13.5,short (further upstream),red >8 m,9.3,yes
+P091,3019,OUE BAYFRONT,1.0,manual,6.5,11.0,12.5,past (toward / over the pole),red >8 m,15.7,yes
+P020,22509,BLK 664C,1.0,manual,-23.5,-11.5,10.0,short (further upstream),red >8 m,6.6,yes
+P054,46641,BLK 894C,1.0,manual,-20.5,-11.5,10.0,short (further upstream),red >8 m,11.2,yes
+P078,13191,OPP ORCHARD STN EXIT 12,1.0,manual,-12.0,5.0,6.5,past (toward / over the pole),amber 3-8 m,22.0,yes
+P093,3071,80 ROBINSON RD,1.0,auto,-17.1,-7.1,5.6,short (further upstream),amber 3-8 m,18.4,yes
+P079,13199,AFT ORCHARD STN EXIT 12,1.0,manual,-12.0,3.0,4.5,past (toward / over the pole),amber 3-8 m,12.3,yes
+P005,28061,J GATEWAY,1.0,manual,23.5,36.5,38.0,past (toward / over the pole),red >8 m,1.2,
+P077,9047,ORCHARD STN/TANG PLAZA,1.0,manual,23.5,36.0,37.5,past (toward / over the pole),red >8 m,0,
+P065,44909,BLK 184,1.0,manual,26.0,34.5,36.0,past (toward / over the pole),red >8 m,4.2,
+P068,44251,BT PANJANG STN/BLK 604,3.0,manual,-12.0,24.5,26.0,past (toward / over the pole),red >8 m,0,
+P048,54399,BEF ANG MO KIO STN EXIT B,3.0,manual,-30.5,22.0,23.5,past (toward / over the pole),red >8 m,0,
+P060,46281,BLK 825,1.0,manual,9.0,20.0,21.5,past (toward / over the pole),red >8 m,1.8,
+P041,17181,OPP BLK 317,1.0,manual,0.0,17.0,18.5,past (toward / over the pole),red >8 m,1.2,
+P057,46631,W'LANDS STN EXIT 5,1.0,manual,1.0,15.5,17.0,past (toward / over the pole),red >8 m,0,
+P058,46329,OPP W'LANDS CIVIC CTR,1.0,manual,3.0,13.5,15.0,past (toward / over the pole),red >8 m,0,
+P069,44631,OPP BT PANJANG PLAZA,1.0,manual,1.0,13.5,15.0,past (toward / over the pole),red >8 m,0,
+P064,44041,JUNCTION 10,1.0,manual,0.5,11.5,13.0,past (toward / over the pole),red >8 m,1.9,
+P012,59141,BLK 741,1.0,manual,2.5,10.5,12.0,past (toward / over the pole),red >8 m,0.4,
+P083,9212,ROYAL PLAZA ON SCOTTS,2.0,manual,-41.0,-12.0,10.5,short (further upstream),red >8 m,0,
+P084,9219,FAR EAST PLAZA,2.0,manual,-18.0,8.0,9.5,past (toward / over the pole),red >8 m,0,
+P022,81111,PAYA LEBAR STN EXIT B,2.0,manual,-25.5,6.5,8.0,past (toward / over the pole),amber 3-8 m,0,
+P026,81051,SIMS VILLE,1.0,manual,-15.0,-8.5,7.0,short (further upstream),amber 3-8 m,3.8,
+P089,3059,ONE RAFFLES QUAY,1.0,manual,-12.5,5.0,6.5,past (toward / over the pole),amber 3-8 m,0,
+P014,59149,BLK 145,1.0,manual,-18.0,-7.5,6.0,short (further upstream),amber 3-8 m,0,
+P066,44259,BLK 183,2.0,manual,-30.0,-7.0,5.5,short (further upstream),amber 3-8 m,0,
+P028,81139,GRANDLINK SQ,1.0,manual,-4.0,4.0,5.5,past (toward / over the pole),amber 3-8 m,4.6,
+P044,17211,BET BLKS 315/318,1.0,manual,-15.0,-6.5,5.0,short (further upstream),amber 3-8 m,0,
+P088,3011,FULLERTON SQ,1.0,manual,-15.0,3.5,5.0,past (toward / over the pole),amber 3-8 m,0,
+P082,9179,ROYAL THAI EMBASSY,1.0,manual,-17.0,-6.0,4.5,short (further upstream),amber 3-8 m,2.1,
+P006,59079,YISHUN STN,1.0,manual,-7.0,3.0,4.5,past (toward / over the pole),amber 3-8 m,2.1,
+P009,59671,BEF YISHUN STN,1.0,manual,-5.0,3.0,4.5,past (toward / over the pole),amber 3-8 m,3.8,
+P021,22501,Blk 662A,1.0,auto,-17.7,-5.7,4.2,short (further upstream),amber 3-8 m,0,
+P003,28211,BEF JURONG EAST STN,1.0,auto,-20.2,-5.4,3.9,short (further upstream),amber 3-8 m,2.9,
+P001,28199,OPP JEM,1.0,manual,-10.5,2.0,3.5,past (toward / over the pole),amber 3-8 m,0,
+P050,54247,BLK 322,1.0,manual,-13.0,-5.0,3.5,short (further upstream),amber 3-8 m,0,
+P047,54339,BLK 422,1.0,manual,-13.5,-5.0,3.5,short (further upstream),amber 3-8 m,0,

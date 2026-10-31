@@ -1,0 +1,10 @@
+{
+  "P006": {
+    "bay_s_from": -26.0,
+    "bay_s_to": 2.5,
+    "bay_depth_m": 3.0,
+    "taper_m": 3.0,
+    "_note": "Proposed from the satellite crop: light concrete bus-bay pad from s -26 to +2.5, about 3 m deep, square ends. The stop sits under the MRT viaduct, so no separate shelter roof is visible; shelter -7 -> 3 kept from the manual label – check on site photos.",
+    "_frame": "gis-pole"
+  }
+}

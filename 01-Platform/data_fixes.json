@@ -1,0 +1,17 @@
+{
+  "P006": {
+    "bay_s_from": -26.0,
+    "bay_s_to": 2.5,
+    "bay_depth_m": 3.0,
+    "taper_m": 3.0,
+    "_note": "Proposed from the satellite crop: light concrete bus-bay pad from s -26 to +2.5, about 3 m deep, square ends. The stop sits under the MRT viaduct, so no separate shelter roof is visible; shelter -7 -> 3 kept from the manual label – check on site photos."
+  },
+  "P065": {
+    "_rev": 1,
+    "pole_ds_m": 55.5,
+    "shelter_s_from": -10.0,
+    "shelter_s_to": -1.5,
+    "shelter_off_m": 4.05,
+    "_note": "2026-10-28, from Zhan Yao's placement on the satellite: the stop (roof at photo s 45.5 -> 54, front 4.5 m behind the kerb, a road added later) lies ~55 m downstream of the data point. Pole moved there (photo slides), roof 8.5 m ending 1.5 m before the pole. Check the kerb offset and the roof on Street View."
+  }
+}

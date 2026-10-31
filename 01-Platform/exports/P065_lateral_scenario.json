@@ -1,0 +1,534 @@
+{
+  "version": "workbench v1",
+  "stop": {
+    "stop_idx": "P065",
+    "bus_stop_id": "44909",
+    "station": "Bukit Panjang",
+    "stop_name": "BLK 184",
+    "road_name": "Bukit Panjang Road",
+    "prototype": "P-LAT",
+    "operation_ladder": "in-place -> splitting -> setback + buffer",
+    "decisive_reason": "rear clear (depth 20.0 m, v4_green)",
+    "lateral": "yes",
+    "longitudinal_ok": "True",
+    "free_end": "both_ends",
+    "walk_route": "front",
+    "rear_space": "green",
+    "rear_obstacle": "open",
+    "rear_depth_m": "20.0",
+    "green_type": "flush_strip",
+    "shelter_src": "manual",
+    "shelter_s_from": -10,
+    "shelter_s_to": -1.5,
+    "shelter_auto_from": "",
+    "shelter_auto_to": "",
+    "berths": "1.0",
+    "stop_zone_len_m": "18.0",
+    "stop_type_now": "kerbside",
+    "bay_depth_m": "-0.1",
+    "under_viaduct": "False",
+    "load_index": "0.38",
+    "n_services": "3.0",
+    "pv_wkday_peak_hr": "1152.0",
+    "osm_lanes": "5",
+    "kerb_from_axis_m": "2.3",
+    "through_kerb_from_axis_m": "2.4",
+    "d_road_axis_m": "5.2",
+    "bollards_30m": "0",
+    "ne_downwind": "0.35",
+    "sw_downwind": "-0.35",
+    "d_signal_m": "94.8",
+    "demo_op": "",
+    "demo_variant": "",
+    "bus_types": [
+      "SD",
+      "DD"
+    ],
+    "bus_services": {},
+    "direction": 245.4,
+    "stop_side": "left",
+    "x3414": 20111.472199999727,
+    "y3414": 40227.544900000095,
+    "lat": 1.3800771,
+    "lon": 103.7624343,
+    "sv": {
+      "C": {
+        "pano": "sqz8KePIn6RtmtFkdTp9lA",
+        "lat": 1.380137,
+        "lon": 103.7623958
+      },
+      "U": {
+        "pano": "n6n-xEt8uKkEEERBO8K5ew",
+        "lat": 1.3802167,
+        "lon": 103.7625561
+      },
+      "D": {
+        "pano": "hDojQSN3sa4baTu1WEQ6cA",
+        "lat": 1.3800956,
+        "lon": 103.7623124
+      }
+    },
+    "map_url": "https://www.google.com/maps/@1.380077,103.762434,45m/data=!3m1!1e3",
+    "_rev": 1,
+    "pole_ds_m": 55.5,
+    "shelter_off_m": 4.05,
+    "_note": "2026-10-28, from Zhan Yao's placement on the satellite: the stop (roof at photo s 45.5 -> 54, front 4.5 m behind the kerb, a road added later) lies ~55 m downstream of the data point. Pole moved there (photo slides), roof 8.5 m ending 1.5 m before the pole. Check the kerb offset and the roof on Street View."
+  },
+  "data_fix": {
+    "_rev": 1,
+    "pole_ds_m": 55.5,
+    "shelter_s_from": -10,
+    "shelter_s_to": -1.5,
+    "shelter_off_m": 4.05,
+    "_note": "2026-10-28, from Zhan Yao's placement on the satellite: the stop (roof at photo s 45.5 -> 54, front 4.5 m behind the kerb, a road added later) lies ~55 m downstream of the data point. Pole moved there (photo slides), roof 8.5 m ending 1.5 m before the pole. Check the kerb offset and the roof on Street View."
+  },
+  "site": {
+    "L": 18,
+    "z0": -18,
+    "z1": 0,
+    "isBay": false,
+    "bd": 0,
+    "b0": -21,
+    "b1": 3,
+    "half": 2.5,
+    "lanes": 5,
+    "rear": 10,
+    "footBack": 13.45,
+    "back": 3.45,
+    "shDepth": 3,
+    "sh0": -10,
+    "sh1": -1.5,
+    "shSrc": "data (manual)",
+    "noShelter": false,
+    "bearing": 245.4,
+    "side": 1,
+    "taper": 3,
+    "off": 2.9000000000000004,
+    "satRot": 0,
+    "shOff": 4.05,
+    "poleDs": 55.5,
+    "poleY": 0.75,
+    "berths": 1
+  },
+  "frame": "local",
+  "wind": {
+    "from": 30,
+    "U": 2,
+    "src": "saved for this stop"
+  },
+  "bus": {
+    "type": "SD",
+    "n": 1,
+    "fronts": [
+      -0.5
+    ],
+    "state": [
+      "dwell"
+    ]
+  },
+  "cfg": {
+    "SH_FRONT": 0.45,
+    "SH_DEPTH": 3,
+    "OFF_MIN": -0.15,
+    "COL": 0.3,
+    "COL_SPAN": 4,
+    "WA_INSET_S": 0.6,
+    "WA_INSET_F": 0.3,
+    "WA_INSET_B": 0.4,
+    "DEFAULT_SH_LEN": 10,
+    "SETBACK": 1.5,
+    "WALK": 1.8,
+    "BUS_MODELS": {
+      "SD": [
+        {
+          "key": "SD-D",
+          "name": "Diesel single deck 12 m",
+          "eg": "Mercedes-Benz Citaro, MAN A22",
+          "L": 12,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              6.6,
+              7.6
+            ]
+          ],
+          "exhaust": {
+            "tail": 0.4,
+            "side": "off"
+          }
+        },
+        {
+          "key": "SD-E",
+          "name": "Electric single deck 12 m",
+          "eg": "BYD K9 and other e-buses",
+          "L": 12,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              6.6,
+              7.6
+            ]
+          ],
+          "exhaust": null
+        }
+      ],
+      "DD": [
+        {
+          "key": "DD-D2",
+          "name": "Diesel double deck 2-door 12 m",
+          "eg": "Volvo B9TL, ADL Enviro500, MAN A95",
+          "L": 12,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "exhaust": {
+            "tail": 0.4,
+            "side": "off"
+          }
+        },
+        {
+          "key": "DD-D3",
+          "name": "Diesel double deck 3-door 12 m",
+          "eg": "MAN A95 / Enviro500 3-door",
+          "L": 12,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              5.4,
+              6.4
+            ],
+            [
+              9.6,
+              10.6
+            ]
+          ],
+          "exhaust": {
+            "tail": 0.4,
+            "side": "off"
+          }
+        },
+        {
+          "key": "DD-E",
+          "name": "Electric double deck 12 m",
+          "eg": "e-bus trial fleet",
+          "L": 12,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              6,
+              7
+            ]
+          ],
+          "exhaust": null
+        }
+      ],
+      "BD": [
+        {
+          "key": "BD-D",
+          "name": "Diesel bendy 18 m",
+          "eg": "MAN A24",
+          "L": 18,
+          "doors": [
+            [
+              1,
+              2
+            ],
+            [
+              7,
+              8
+            ],
+            [
+              13,
+              14
+            ]
+          ],
+          "exhaust": {
+            "tail": 0.4,
+            "side": "off"
+          },
+          "joint": 10.2
+        }
+      ]
+    },
+    "BUS_W": 2.55,
+    "BUS_GAP": 0.3,
+    "BUS_MIN_GAP": 1,
+    "BUS_QUEUE_GAP": 1.5,
+    "BUS_MAX": 4,
+    "LANE_W": 3.4,
+    "TURN_R": 15,
+    "EMIT": {
+      "dwell": 1,
+      "depart": 1.8
+    },
+    "WIND": {
+      "ne": 30,
+      "sw": 210
+    },
+    "GRID": 0.3,
+    "LEVELS": [
+      0.5,
+      0.25,
+      0.1
+    ],
+    "GAP_W": 3.4,
+    "R1_SHARE": 0.45,
+    "SEAT": {
+      "L": 1.5,
+      "D": 0.5,
+      "GAP": 0.3,
+      "FRONT": 0.15,
+      "CLEAR": 1.2
+    },
+    "INFO": {
+      "W": 1.2
+    },
+    "SCREEN_F": {
+      "solid": 0.5,
+      "perf": 0.5
+    },
+    "POLE_SETBACK": 1.5,
+    "POLE_FLAG": 3,
+    "POLE_ERR": 8
+  },
+  "zone_types": [
+    {
+      "key": "boarding",
+      "name": "Boarding zone",
+      "dxf_layer": "BS_ZONE_BOARDING",
+      "role": "kerb strip at the bus doors; short stay, must see the bus"
+    },
+    {
+      "key": "crossing",
+      "name": "Crossing zone",
+      "dxf_layer": "BS_ZONE_CROSSING",
+      "role": "pedestrians passing the stop; continuous and clear"
+    },
+    {
+      "key": "waiting",
+      "name": "Waiting zone",
+      "dxf_layer": "BS_ZONE_WAITING",
+      "role": "seats and standing; longest stay, placed in cleaner air"
+    },
+    {
+      "key": "filter",
+      "name": "Filtering zone",
+      "dxf_layer": "BS_ZONE_FILTER",
+      "role": "screens / greenery between the exhaust and people"
+    },
+    {
+      "key": "bicycle",
+      "name": "Bicycle zone",
+      "dxf_layer": "BS_ZONE_BICYCLE",
+      "role": "bicycle parking behind the shelter, clear of the crossing zone"
+    },
+    {
+      "key": "canopy",
+      "name": "Canopy edge",
+      "dxf_layer": "BS_ZONE_CANOPY",
+      "role": "edge of the rain cover, an overlay over the other zones"
+    }
+  ],
+  "operations": {
+    "lateral": {
+      "els": [
+        {
+          "id": "h6asske",
+          "type": "shelter",
+          "s0": -10,
+          "s1": -1.5,
+          "off": 1.5
+        },
+        {
+          "id": "pzd3wcq",
+          "type": "info",
+          "s0": -4.4,
+          "y0": 7.2,
+          "s1": -3.2,
+          "y1": 7.2,
+          "note": "arrival display (info system)"
+        },
+        {
+          "id": "7z6mbji",
+          "type": "planter",
+          "s0": -0.9,
+          "s1": 0,
+          "y0": 0.6,
+          "y1": 1.8,
+          "note": "low buffer ≤ 1 m"
+        },
+        {
+          "id": "awcw4qa",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -10,
+          "y": 0.45
+        },
+        {
+          "id": "o6ngpxg",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -8.5,
+          "y": 0.45
+        },
+        {
+          "id": "ck2r5fe",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -7,
+          "y": 0.45
+        },
+        {
+          "id": "cqv2lip",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -5.5,
+          "y": 0.45
+        },
+        {
+          "id": "2lzz9c2",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -4,
+          "y": 0.45
+        },
+        {
+          "id": "1hllj26",
+          "type": "bollard",
+          "row": "kerb",
+          "s": -2.5,
+          "y": 0.45
+        },
+        {
+          "id": "wa_h6asske",
+          "type": "waiting",
+          "s0": -9.4,
+          "s1": -2.1,
+          "y0": 2.3,
+          "y1": 4.6
+        },
+        {
+          "id": "pa_h6asske_0_1",
+          "type": "pax",
+          "s": -8.4,
+          "y": 3.5,
+          "auto": true
+        },
+        {
+          "id": "pa_h6asske_0_2",
+          "type": "pax",
+          "s": -7.1,
+          "y": 3.5,
+          "auto": true
+        },
+        {
+          "id": "pa_h6asske_1_1",
+          "type": "pax",
+          "s": -4.4,
+          "y": 3.5,
+          "auto": true
+        },
+        {
+          "id": "pa_h6asske_1_2",
+          "type": "pax",
+          "s": -3.1,
+          "y": 3.5,
+          "auto": true
+        },
+        {
+          "id": "fni9qqu",
+          "type": "zone",
+          "zone": "boarding",
+          "s0": -18,
+          "s1": 0,
+          "y0": 0,
+          "y1": 2,
+          "note": "stop zone, kerb to the roof front"
+        },
+        {
+          "id": "132uafu",
+          "type": "zone",
+          "zone": "canopy",
+          "s0": -10,
+          "s1": -1.5,
+          "y0": 2,
+          "y1": 5,
+          "note": "roof"
+        },
+        {
+          "id": "cv55dr7",
+          "type": "zone",
+          "zone": "waiting",
+          "s0": -9.4,
+          "s1": -2.1,
+          "y0": 2.3,
+          "y1": 4.6,
+          "note": "under the roof"
+        },
+        {
+          "id": "xfaszpw",
+          "type": "zone",
+          "zone": "crossing",
+          "s0": -24,
+          "s1": 6,
+          "y0": 2,
+          "y1": 3.8,
+          "note": "walk route: in front of the roof"
+        },
+        {
+          "id": "mrb16m7",
+          "type": "zone",
+          "zone": "bicycle",
+          "s0": -10,
+          "s1": -1.5,
+          "y0": 7.5,
+          "y1": 9.5,
+          "note": "default: against the rear of the roof"
+        }
+      ],
+      "opt": {
+        "base": "-10,-1.5,4.05"
+      },
+      "exposure": {
+        "pax": 13.840280659496784,
+        "wa": 14.33916367404163,
+        "hiShare": 0,
+        "nPax": 4
+      },
+      "zones": {
+        "area_m2": {
+          "boarding": 36,
+          "crossing": 54,
+          "waiting": 16.8,
+          "filter": 0,
+          "bicycle": 17,
+          "canopy": 25.5
+        },
+        "waiting_zone_exposure": 14.3,
+        "waiting_min_from_kerb_m": 2.3,
+        "waiting_under_canopy": 1,
+        "waiting_shielded_by_filter": 0,
+        "crossing_min_width_m": 1.8
+      }
+    }
+  }
+}

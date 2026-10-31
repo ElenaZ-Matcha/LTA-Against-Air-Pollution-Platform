@@ -1,0 +1,153 @@
+{
+ "P021": {
+  "bus_stop_id": "22501",
+  "services": {
+   "179": {
+    "operator": "SMRT",
+    "types": [
+     "DD"
+    ]
+   },
+   "241": {
+    "operator": "SMRT",
+    "types": [
+     "DD"
+    ]
+   },
+   "974": {
+    "operator": "SMRT",
+    "types": [
+     "SD",
+     "DD"
+    ]
+   }
+  },
+  "types": [
+   "DD",
+   "SD"
+  ],
+  "checked": "2026-10-24T23:05"
+ },
+ "P040": {
+  "bus_stop_id": "17239",
+  "services": {
+   "14": {
+    "operator": "SBST",
+    "types": [
+     "DD"
+    ]
+   },
+   "147": {
+    "operator": "SBST",
+    "types": [
+     "DD",
+     "SD"
+    ]
+   },
+   "156": {
+    "operator": "SBST",
+    "types": [
+     "SD"
+    ]
+   },
+   "165": {
+    "operator": "SBST",
+    "types": [
+     "DD",
+     "SD"
+    ]
+   },
+   "166": {
+    "operator": "SBST",
+    "types": [
+     "SD"
+    ]
+   },
+   "175": {
+    "operator": "SBST",
+    "types": [
+     "SD"
+    ]
+   },
+   "285": {
+    "operator": "TTS",
+    "types": [
+     "DD"
+    ]
+   },
+   "78": {
+    "operator": "TTS",
+    "types": [
+     "DD"
+    ]
+   },
+   "96": {
+    "operator": "TTS",
+    "types": [
+     "SD",
+     "DD"
+    ]
+   }
+  },
+  "types": [
+   "DD",
+   "SD"
+  ],
+  "checked": "2026-10-24T23:05"
+ },
+ "P039": {
+  "bus_stop_id": "17169",
+  "services": {
+   "105": {
+    "operator": "SBST",
+    "types": [
+     "SD"
+    ]
+   },
+   "106": {
+    "operator": "TTS",
+    "types": [
+     "DD"
+    ]
+   },
+   "154": {
+    "operator": "SBST",
+    "types": [
+     "SD",
+     "DD"
+    ]
+   },
+   "183": {
+    "operator": "TTS",
+    "types": [
+     "DD"
+    ]
+   },
+   "184": {
+    "operator": "SMRT",
+    "types": [
+     "SD"
+    ]
+   },
+   "185": {
+    "operator": "SMRT",
+    "types": [
+     "SD",
+     "DD"
+    ]
+   },
+   "52": {
+    "operator": "SBST",
+    "types": [
+     "SD",
+     "DD"
+    ]
+   }
+  },
+  "types": [
+   "DD",
+   "SD"
+  ],
+  "checked": "2026-10-24T23:05"
+ }
+}

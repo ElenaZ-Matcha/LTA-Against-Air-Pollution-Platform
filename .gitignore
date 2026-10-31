@@ -1,0 +1,18 @@
+# Regulations and standards are NOT part of this repository (see README > What is not here)
+literatures/
+*regulation*
+*Regulation*
+LTA_BUS*
+LTA_IDC*
+LTA_SDRE*
+*.pdf
+
+# API keys
+*.lta_key
+.env
+
+# local / working files
+_backup*/
+.claude/
+__pycache__/
+*.3dmbak
