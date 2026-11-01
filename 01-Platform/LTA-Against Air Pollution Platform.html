@@ -68,7 +68,7 @@ input[type=number]{padding:4px 6px}
 .op{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}
 .op .rank{width:22px;height:22px;border-radius:50%;background:#eef0f2;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none}
 .op .name{font-weight:600}
-.op .why{font-size:11px;color:var(--muted)}
+.op .why{font-size:11px;color:var(--muted);white-space:pre-line}
 .op .st{margin-left:auto;font-size:11px;color:var(--muted);white-space:nowrap}
 .op.on{border-color:var(--accent);background:var(--accent-soft)}
 .op.on .rank{background:var(--accent);color:#fff}
@@ -720,8 +720,8 @@ const CFG = {
 };
 const OPS = [
   {key:'baseline', name:'Baseline', zh:'现状', rank:0},
-  {key:'inplace', name:'In-place', zh:'原位：R1 挡板前置 / R2 转向', rank:1},
-  {key:'split', name:'Longitudinal', zh:'纵向', rank:2},
+  {key:'inplace', name:'In-place', zh:'R1: move panel to the front \n R2: reorient', rank:1},
+  {key:'split', name:'Longitudinal', zh:'Along the road', rank:2},
   {key:'lateral', name:'Transversal', zh:'横向', rank:3},
 ];
 
