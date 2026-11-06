@@ -19,7 +19,7 @@ The designer's workflow follows the left navigation of the page:
 1. **Find stop** – map of the sampled stops, coloured by an indicative exposure grade under the worst wind direction.
 2. **Baseline** – existing shelter, bus bay, pole, bollards, columns and five zones (Boarding, Crossing, Waiting, Filtering, Bicycle) drawn on the satellite crop.
 3. **Edit** – apply a prototype (*In-place*, *Longitudinal*, *Transversal*) and change components and zones.
-4. **Export & check** – geometry checks, wind and bus-exhaust scenario, DXF / JSON / PNG / GH package.
+4. **Export & check** – evaluation (Waiting zone exposure; Waiting zone area, canopy cover, seats, nearest to kerb, clear path), wind and bus-exhaust scenario, DXF / JSON / PNG / GH package.
 5. **Design** – 2D plan beside a 3D preview built from the DXF layers.
 6. **Archive / Analysis** – saved options, compared under the same scenario, across stops.
 
@@ -82,7 +82,7 @@ python 01-Platform/make_platform.py
 **Air quality**
 - Exposure is an **indicative index** from a simplified plume model, used only to compare options under the same wind and bus scenario. It is **not CFD, not a measurement, not µg/m³**, and must not be read as a health benefit.
 - The barrier factor (×0.5, after Baldauf et al. 2016) and the vegetation factor are demonstration assumptions. Calm / low wind is outside what the model can show.
-- Map grades use provisional thresholds (8 / 12 / 16). The worst single wind direction is a screening case, not the most common direction or a yearly exposure.
+- Map grades use provisional thresholds (2 / 6 / 10), with the worse monsoon (NE 30° or SW 210°), 2 m/s and 1 bus. That is a screening case, not the most common wind or a yearly exposure.
 - Wind directions are meteorological FROM (0° = north). The wind buttons in the page (NE / SW monsoon, along road, worst) still use 30° / 210° defaults that do not fully match the per-stop data in `stop_wind_conditions.xlsx`.
 
 **Geometry and data**
@@ -90,6 +90,9 @@ python 01-Platform/make_platform.py
 - Bus types are a DataMall snapshot of 2026-10-24 for the 3 demo stops only; other stops default to single- and double-deck.
 - The 3D view is a three.js preview made in the page, not Grasshopper or Rhino. The GH package covers flat roofs; gable roofs are preview only.
 - Zones are for planning and checking; DXF / 3D solids are generated from components, not from zones.
+- Clear-path limits (2.4 m under a roof, 1.5 m in the Crossing zone) and seat count (0.6 m per person) are project rules, not code requirements.
+- The arrival display hangs from the roof in the page, but the Grasshopper file still models it on posts; the GH package converts the values.
+- Archive entries saved before week 12 may mark exposure values with `*`, because exposure now counts the Waiting zone only.
 
 **Regulations**
 - The platform does **not** check compliance with LTA, BCA, URA or any other code. Passing its checks is not approval.
@@ -97,6 +100,14 @@ python 01-Platform/make_platform.py
 
 **Storage**
 - The Archive is kept in the browser (`localStorage`), separately for every address (`file://` and `http://localhost:8765` are different). Use *Export archive* / *Import archive* to move or back up options; nothing is stored on a server.
+
+## Versions
+
+`main` holds the current version (week 12). The tag **`interim`** marks the interim review version (week 11). To see it:
+
+```bash
+git checkout interim
+```
 
 ## Data sources and terms
 
@@ -110,8 +121,8 @@ Users of this repository are responsible for following each provider's terms.
 ## Notes
 
 - Internal keys differ from the names in the UI: *Longitudinal* = `split`, *Transversal* = `lateral` (formerly called P-LAT, now P-TSV).
-- Exports in `01-Platform/exports/` are samples from the review on 2026-10-28/29, not final designs.
-- Status: course work in progress (week 11 review). No warranty; do not use for real projects.
+- Exports in `01-Platform/exports/` are samples from the review on 2026-10-28/29, made with the earlier version, not final designs.
+- Status: course work in progress (week 12). No warranty; do not use for real projects.
 
 ---
 

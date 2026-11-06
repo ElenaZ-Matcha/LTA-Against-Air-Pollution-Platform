@@ -112,7 +112,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .toolbar{display:flex;flex-direction:column;gap:2px;padding:6px 10px;background:var(--panel);border-bottom:1px solid var(--line)}
 .tb-row{display:flex;align-items:center;gap:2px;flex-wrap:wrap;min-height:32px}
 .tb-row + .tb-row{border-top:1px solid #eef2f2;padding-top:2px}
-#pgWork[data-mode="export"] .tb-row + .tb-row .sep{display:none}
+#pgWork[data-mode="export"] .tb-layer{display:none}   /* no design on the export page: zoning / component rows hidden */
 /* zoning row and components row: one is the working layer, the other can be seen but not picked */
 .tb-lab{min-width:104px;text-align:left;border:0;background:none;font:inherit;font-weight:600;color:var(--muted);padding:5px 8px;margin-right:4px;border-radius:6px;cursor:pointer}
 .tb-lab:hover{color:var(--ink)}
@@ -131,7 +131,7 @@ main{display:flex;flex-direction:column;min-width:0;min-height:0}
 .zchip .zl:hover{background:var(--accent-soft)}
 .zchip.locked .zl{color:#86939a}
 .zchip .zl svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-#plan.layer-comp .zr,#plan.zauto .zr:not(.z-bicycle):not(.z-crossing):not(.z-boarding){pointer-events:none}
+#plan.layer-comp .zr,#plan.zauto .zr:not(.z-bicycle):not(.z-crossing):not(.z-boarding):not(.z-waiting){pointer-events:none}
 #plan.layer-zone [data-id]:not(.zr):not(.h):not([data-id="pole"]){pointer-events:none}
 #plan.panning{cursor:grabbing}
 #legend{display:none}
@@ -375,7 +375,7 @@ header.top{justify-content:space-between}
 .arc-head input[type=search]{padding:5px 8px}
 .arc-cmp{padding:0 18px;overflow:auto}
 .arc-cmp:not(:empty){padding:14px 18px;background:#fff;border-bottom:1px solid var(--line)}
-.arc-grid{overflow:auto;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-content:start}
+.arc-grid{overflow:auto;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));grid-auto-rows:max-content;gap:14px;align-content:start}   /* rows keep the full card (buttons) and scroll */
 .acard{background:#fff;border-radius:8px;border:1px solid var(--line);overflow:hidden;display:flex;flex-direction:column}
 .acard.sel{border-color:var(--accent)}
 .acard .th{aspect-ratio:16/9;background:#eef0f2 center/cover no-repeat;position:relative}
@@ -485,18 +485,21 @@ header.top{justify-content:space-between}
       <button class="tool" id="reset" title="Regenerate this prototype from the baseline">Reset</button>
       <span class="sep"></span>
       <button class="tool" id="dimsT" title="Show dimensions (D)"><svg viewBox="0 0 16 16"><path d="M1 11h14M1 8v6M15 8v6M4 4h8" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Dimensions</button>
+      <button class="tool" id="textT" title="Show the zone names and the pole name on the plan"><svg viewBox="0 0 16 16"><path d="M3 4V2.5h10V4M8 2.5v11M6 13.5h4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Text</button>
       <button class="tool" id="satT" title="Satellite underlay"><svg viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 12l4-4 3 3 2-2 3 3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Satellite</button>
       <input type="range" id="satA" min="10" max="100" step="5" title="Satellite strength">
       <span class="sep"></span>
-      <button class="tool" id="zOut" title="Zoom out (-)">－</button>
+      <button class="tool" id="zOut" title="Zoom out (-)">-</button>
       <span id="zLbl">100%</span>
-      <button class="tool" id="zIn" title="Zoom in (+) · mouse wheel zooms at the pointer · right / middle drag pans">＋</button>
+      <button class="tool" id="zIn" title="Zoom in (+) · mouse wheel zooms at the pointer · right / middle drag pans">+</button>
       <button class="tool" id="zFit" title="Fit whole stop (0)">Fit</button>
      </div>
      <div class="tb-row tb-layer" data-layer="zone" aria-label="Zoning">
       <button class="tb-lab" data-layer-btn="zone" title="Work on the zones (the components cannot be picked)">Zoning</button>
       <button class="tb-eye" id="zonesT" title="Show / hide the zones"></button>
       <span class="zchips" data-zchips></span>
+      <button class="zchip" id="busVis" style="--zc:#4a4a4a"><i></i>Bus<span class="zl"></span></button>
+      <button class="zchip" id="poleVis" style="--zc:#1f2328"><i></i>Pole<span class="zl"></span></button>
       <span class="sep"></span>
       <button class="tool" data-tool="zone" title="Draw a rectangle into the picked zone (Z) – drag from corner to corner"><svg viewBox="0 0 16 16"><rect x="1.5" y="3.5" width="13" height="9" fill="#0f9aa0" fill-opacity=".18" stroke="#0f9aa0" stroke-dasharray="2.5 1.5"/></svg>Draw zone</button>
      </div>
@@ -509,7 +512,7 @@ header.top{justify-content:space-between}
       <button class="tool" data-tool="screen" title="Draw screen / end wall (W) – drag start → end"><svg viewBox="0 0 16 16"><path d="M1 6.5h14M1 9.5h14" stroke="#123f7a" stroke-width="1.4"/></svg>Screen</button>
       <button class="tool" data-tool="bollard" title="Add bollard (O)"><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="3.5" fill="#9a9a9a"/></svg>Bollard</button>
       <button class="tool" data-tool="seat" title="Add seat (C)"><svg viewBox="0 0 16 16"><rect x="2" y="6" width="12" height="5" fill="#d8b98f" stroke="#7a5230"/><path d="M2 6h12" stroke="#7a5230" stroke-width="2"/></svg>Seat</button>
-      <button class="tool" data-tool="info" title="Draw arrival display (I) – line = display width, end points = posts"><svg viewBox="0 0 16 16"><path d="M3 8h10" stroke="#6a3d9a" stroke-width="2.4"/><circle cx="3" cy="8" r="1.3" fill="#6a3d9a"/><circle cx="13" cy="8" r="1.3" fill="#6a3d9a"/></svg>Display</button>
+      <button class="tool" data-tool="info" title="Draw arrival display (I) – line = display width; it hangs from the roof"><svg viewBox="0 0 16 16"><path d="M3 8h10" stroke="#6a3d9a" stroke-width="2.4"/><circle cx="3" cy="8" r="1.3" fill="#6a3d9a"/><circle cx="13" cy="8" r="1.3" fill="#6a3d9a"/></svg>Display</button>
       <span class="sep"></span>
       <button class="tool" data-tool="shelter" title="Draw shelter segment – drag from start to end"><svg viewBox="0 0 16 16"><rect x="1" y="4" width="14" height="8" fill="#1d63b8" opacity=".35"/></svg>Shelter</button>
       <button class="tool" data-tool="split" title="Split: click inside a roof to open a gap (gap width / keep length in the prototype panel)"><svg viewBox="0 0 16 16"><rect x="1" y="4" width="5.5" height="8" fill="#1d63b8" opacity=".35"/><rect x="9.5" y="4" width="5.5" height="8" fill="#1d63b8" opacity=".35"/><path d="M8 2v12" stroke="currentColor" stroke-dasharray="2 2"/></svg>Split</button>
@@ -538,8 +541,8 @@ header.top{justify-content:space-between}
         <button class="b" data-wind="ne">NE monsoon</button>
         <button class="b" data-wind="sw">SW monsoon</button>
         <button class="b" data-wind="along">Along road</button>
-        <button class="b" data-wind="worstm" title="The monsoon (NE 30° / SW 210°) with the higher baseline waiting-area exposure – the default">Worst monsoon</button>
-        <button class="b" data-wind="worst" title="Sweep all directions in 5° steps, take the highest baseline waiting-area exposure">Worst any</button>
+        <button class="b" data-wind="worstm" title="The monsoon (NE 30° / SW 210°) with the higher baseline Waiting zone exposure – the default">Worst monsoon</button>
+        <button class="b" data-wind="worst" title="Sweep all directions in 5° steps, take the highest baseline Waiting zone exposure">Worst any</button>
       </div>
       <div class="row" style="margin-bottom:6px">
         <label class="sub">Wind speed (m/s)<input type="number" id="windU" min="0.5" max="10" step="0.5"></label>
@@ -554,7 +557,7 @@ header.top{justify-content:space-between}
       <label class="sub" style="display:block;margin-top:6px">Model (exhaust)<select id="busModel" style="width:100%"></select></label>
       <div class="sub" id="busTypesNote" hidden></div>
       <div id="busRows" style="margin-top:6px"></div>
-      <div class="btns" style="margin-top:6px"><button class="b" id="busBerth" title="Bus 1 front at the pole end of the stop zone, the rest queued 1.5 m apart">At berths</button><button class="b" id="busDepart" title="Bus 1 pulling out along the exit curve">Bus 1 departing</button></div>
+      <div class="btns" style="margin-top:6px"><button class="b" id="busBerth" title="Bus 1 front on the downstream edge of the baseline roof, the rest queued 1.5 m apart">At berths</button><button class="b" id="busDepart" title="Bus 1 pulling out along the exit curve">Bus 1 departing</button></div>
     </section>
     <section id="secExport" data-on="export">
       <h2>Grasshopper export</h2>
@@ -682,6 +685,7 @@ const CFG = {
   WA_INSET_F: 0.3, WA_INSET_B: 0.4,
   DEFAULT_SH_LEN: 10,   // when no shelter data
   SETBACK: 1.5, WALK: 1.8,
+  ROOF_CLEAR: 2.4, CROSS_FREE: 1.5, SEAT_PP: 0.6,   // clear width under a roof the walk route passes through; crossing zone clear width (waiting may overlap); bench length per seated person
   // bus models by DataMall type (SD / DD / BD). doors = [from, to] metres behind the front.
   // exhaust: tail = metres ahead of the rear, side = 'off' (road side) / 'near' (kerb side) / 'rear' (centre),
   // null = no tailpipe (electric). Exhaust positions are assumed – check against photos of each model.
@@ -712,17 +716,17 @@ const CFG = {
   GAP_W: 3.4,           // split gap width (default)
   R1_SHARE: 0.45,       // share of the roof protected at the exposed end (R1 screen / R2 seats)
   SEAT: {L:1.5, D:0.5, GAP:0.3, FRONT:0.15, CLEAR:1.2},   // bench (assumed); clear space in front, README 1.2–1.5 m
-  INFO: {W:1.2},        // arrival display width; hung between two back columns
+  INFO: {W:0.8},        // arrival display width; hung from the roof, no posts
   SCREEN_F: {solid:0.5, perf:0.5},    // plume attenuation through a screen; solid ≈ −50% behind a barrier (Baldauf et al. 2016)
   // LTA SDRE bus stop with bay: the shelter's downstream end stands 1.5 m before the bus-stop pole (the DataMall point);
   // a roof end more than POLE_FLAG (amber) / POLE_ERR (red) m off that position is flagged for review
   POLE_SETBACK: 1.5, POLE_FLAG: 3, POLE_ERR: 8,
 };
 const OPS = [
-  {key:'baseline', name:'Baseline', zh:'现状', rank:0},
-  {key:'inplace', name:'In-place', zh:'原位：R1 挡板前置 / R2 转向', rank:1},
-  {key:'split', name:'Longitudinal', zh:'纵向', rank:2},
-  {key:'lateral', name:'Transversal', zh:'横向', rank:3},
+  {key:'baseline', name:'Baseline', desc:'Existing condition', rank:0},
+  {key:'inplace', name:'In-place', desc:'R1: shield; R2: Re-orient', rank:1},
+  {key:'split', name:'Longitudinal', desc:'Along the road', rank:2},
+  {key:'lateral', name:'Transversal', desc:'Perpendicular to the road', rank:3},
 ];
 
 // ---------- helpers ----------
@@ -750,7 +754,7 @@ const S = {
   tool:'select', sel:null, field:null, fieldBase:null,
   clip:null, clipN:0, proto:{}, protoId:{}, mouse:null, kerbDy:0,
   // zones: shown, active (drawn into / on top), locked (not pickable) and hidden per zone; kept in this browser
-  zonesOn:true, zact:'waiting', zlock:{}, zhide:{}, zlabels:true,
+  zonesOn:true, zact:'waiting', zlock:{}, zhide:{}, zlabels:true, busOn:true, poleOn:true,
   layer:'comp',   // 'zone' | 'comp': which of the two layers takes the clicks in the plan
 };
 
@@ -856,8 +860,14 @@ function driveY(s, dl){
   if (s <= dl.e0) return yIn;
   return S2(dl.e1 - s);
 }
-// default positions: first bus front just behind the pole end of the stop zone, the rest queued upstream
-function defaultFronts(n){ const L = busModel().L; return Array.from({length:n}, (_, k) => r1(S.site.z1 - 0.5 - k*(L + CFG.BUS_QUEUE_GAP))); }
+// default positions: first bus front on the roof's downstream edge (no roof: just behind the pole end of the stop zone), the rest queued upstream
+function defaultFronts(n){ const L = busModel().L, f = S.site.noShelter ? S.site.z1 - 0.5 : S.site.sh1; return Array.from({length:n}, (_, k) => r1(f - k*(L + CFG.BUS_QUEUE_GAP))); }
+// stored bus settings from before the roof-edge rule take it once, at every stop; a bus moved by hand after that stays
+function alignBus(b){
+  if (b.aligned) return b;
+  delete b.fronts; b.manual = false; b.aligned = true;
+  return b;
+}
 function departFront(){ const dl = driveLine(); return r1(dl.e1 < 1e8 ? dl.e1 + 1 : S.site.z1 + 8); }
 function busState(){
   const n = clamp(Math.round(S.bus.n || 1), 1, CFG.BUS_MAX);
@@ -896,19 +906,32 @@ function waitingFor(sh){
   const [f,b] = shelterY(sh);
   return {id:'wa_'+sh.id, type:'waiting', s0:r1(sh.s0+CFG.WA_INSET_S), s1:r1(sh.s1-CFG.WA_INSET_S), y0:r1(f+CFG.WA_INSET_F), y1:r1(b-CFG.WA_INSET_B)};
 }
-// passenger sample points: two per column bay, evenly spaced, on the mid line of the waiting area – they move with the roof.
+// passenger sample points: two per column bay (1/3, 2/3 of the bay), on the mid line of the Waiting zone rectangle at
+// that s – so they follow the roof, the columns and the zone. No Waiting zone yet (a fresh option): the roof's waiting area.
 // A dragged or edited one becomes manual (auto:false, from = the auto point it replaces); Passenger tool adds manual ones.
-function autoPax(shs){
+function autoPax(shs, wz){
   const out = [];
   for (const sh of shs){
-    const w = waitingFor(sh), cols = columnsOf(sh), y = r1((w.y0 + w.y1)/2);
+    const w = waitingFor(sh), xs = [...new Set(columnsOf(sh).map(c => c.s))].sort((a, b) => a - b);
     if (w.s1 - w.s0 < 0.5) continue;
-    for (let i = 0; i < cols.length - 1; i++) for (const k of [1, 2]){
-      const s = clamp(cols[i].s + (cols[i+1].s - cols[i].s)*k/3, w.s0, w.s1);
-      out.push({id:`pa_${sh.id}_${i}_${k}`, type:'pax', s:r1(s), y, auto:true});
+    for (let i = 0; i < xs.length - 1; i++) for (const k of [1, 2]){
+      const s0 = xs[i] + (xs[i+1] - xs[i])*k/3;
+      let s, y;
+      if (wz && wz.length){
+        const z = wz.filter(r => s0 >= r.s0 && s0 <= r.s1).sort((a, b) => (b.y1 - b.y0) - (a.y1 - a.y0))[0];
+        if (!z) continue;                       // this bay has no waiting zone: no passenger there
+        s = s0; y = (z.y0 + z.y1)/2;
+      } else { s = clamp(s0, w.s0, w.s1); y = (w.y0 + w.y1)/2; }
+      out.push({id:`pa_${sh.id}_${i}_${k}`, type:'pax', s:r1(s), y:r1(y), auto:true});
     }
   }
   return out;
+}
+// the passengers that count: inside a Waiting zone (all of them when the option has no Waiting zone)
+function paxInWaiting(els){
+  const pax = els.filter(e => e.type==='pax'), wz = zonesOf(els, 'waiting');
+  if (!wz.length) return pax;
+  return pax.filter(p => wz.some(r => p.s >= r.s0 - 0.01 && p.s <= r.s1 + 0.01 && p.y >= r.y0 - 0.01 && p.y <= r.y1 + 0.01));
 }
 // stored versions from before the per-bay rule: replace their passenger points once
 function migratePax(els){
@@ -934,6 +957,8 @@ function makeBaseline(st, site){
     if (st.shelter_col_shape==='round') sh.colShape = 'round';
     if (COL_ROWS[st.shelter_col_rows] && st.shelter_col_rows!=='back') sh.colRows = st.shelter_col_rows;
     if (num(st.shelter_col_at_m) > 0) sh.colAt = num(st.shelter_col_at_m);
+    if (num(st.shelter_col_size_m) > 0) sh.colSize = num(st.shelter_col_size_m);
+    if (has(st.shelter_col_inset_m) && num(st.shelter_col_inset_m, -1) >= 0) sh.colInset = num(st.shelter_col_inset_m);
     if (site.shDepth !== CFG.SH_DEPTH) sh.depth = site.shDepth;
     els.push(sh, waitingFor(sh), infoFor(sh));
   }
@@ -959,16 +984,20 @@ function renderEval(){
   const els = scen().els, isB = S.op==='baseline', bEls = (S.saved.baseline || S.scen.baseline).els;
   const cur = evaluate(els, S.field), bas = isB ? cur : evaluate(bEls, S.fieldBase || computeField(bEls)), C = SIGHT_CFG;
   const sb = (cur, bas, f, lower) => isB ? '' : dTag(f(cur, bas), lower);
-  const exRow = (lab, k, lower = true) => `<div class="big"><span>${lab}</span><b>${cur.ex[k].toFixed(1)}${sb(cur.ex[k], bas.ex[k], pct, lower)}</b></div>`;
   const zs = cur.zs, zb = bas.zs, P0 = x => x == null ? '–' : Math.round(x*100) + '%', M1 = x => x == null ? '–' : r1(x) + ' m';
   const tone = (ok, mid) => ok ? 'down' : mid ? '' : 'up';
-  const zRows = `<div class="big"><span>Waiting zone exposure</span><b>${zs.waitExp == null ? '–' : zs.waitExp.toFixed(1)}${zs.waitExp == null || zb.waitExp == null ? '' : sb(zs.waitExp, zb.waitExp, pct, true)}</b></div>
-    <div class="big"><span>Waiting zone area</span><b>${cur.zones.waiting.toFixed(1)} m²${sb(cur.zones.waiting, bas.zones.waiting, pct, false)}</b></div>
-    <div class="zrow"><span>Nearest to kerb</span><b class="${zs.waitKerb == null ? '' : tone(zs.waitKerb >= 1.5, zs.waitKerb >= 0.9)}">${M1(zs.waitKerb)}</b></div>
+  // exposure = the Waiting zone only (one index for every page: results, archive, analysis)
+  const exRows = `<div class="big"><span>Waiting zone exposure</span><b>${zs.waitExp == null ? '–' : zs.waitExp.toFixed(1)}${zs.waitExp == null || zb.waitExp == null ? '' : sb(zs.waitExp, zb.waitExp, pct, true)}</b></div>
+    <div class="big"><span>Waiting zone in mid / high band</span><b>${zs.waitHi == null ? '–' : zs.waitHi.toFixed(0) + '%'}</b></div>
+    <div class="zrow"><span>Shielded by filtering zone</span><b>${P0(zs.shield)}</b></div>`;
+  const nAll = els.filter(e => e.type==='pax').length, nIn = paxInWaiting(els).length;
+  // safety & accessibility: clear path = roof clear width (walk route through the shelter) + free crossing width, past columns / seats / screens
+  const zRows = `<div class="big"><span>Waiting zone area</span><b>${cur.zones.waiting.toFixed(1)} m²${sb(cur.zones.waiting, bas.zones.waiting, pct, false)}</b></div>
     <div class="zrow"><span>Under canopy</span><b>${P0(zs.waitCanopy)}</b></div>
-    <div class="zrow"><span>Shielded by filtering zone</span><b>${P0(zs.shield)}</b></div>
-    <div class="zrow"><span>Crossing zone narrowest</span><b class="${zs.crMin == null ? '' : tone(zs.crMin >= CFG.WALK - 0.01, zs.crMin >= 1.5)}">${M1(zs.crMin)}</b></div>
-    <div class="zrow"><span>Waiting in crossing zone</span><b class="${tone(zs.waitCrossing < 0.05, zs.waitCrossing < 1)}">${r1(zs.waitCrossing)} m²</b></div>`;
+    <div class="zrow"><span>Seats (${CFG.SEAT_PP} m per person)</span><b>${zs.seats ?? '–'}</b></div>
+    <div class="zrow"><span>Nearest to kerb</span><b class="${zs.waitKerb == null ? '' : tone(zs.waitKerb >= 1.5, zs.waitKerb >= 0.9)}">${M1(zs.waitKerb)}</b></div>
+    ${zs.through ? `<div class="zrow"><span>Clear width under roof (≥ ${CFG.ROOF_CLEAR} m)</span><b class="${zs.roofClear == null ? '' : tone(zs.roofClear >= CFG.ROOF_CLEAR - 0.01, zs.roofClear >= CFG.CROSS_FREE - 0.01)}">${M1(zs.roofClear)}</b></div>` : ''}
+    <div class="zrow"><span>Crossing zone clear width (≥ ${CFG.CROSS_FREE} m)</span><b class="${zs.crFree == null ? '' : tone(zs.crFree >= CFG.CROSS_FREE - 0.01, zs.crFree >= 1.2)}">${M1(zs.crFree)}</b></div>`;
   const sRows = cur.sight.eyes.map((y, i) => `<div class="big"><span>Eye ${y.h} m ${y.h < 1.25 ? '(seated)' : '(standing)'}</span><b>${y.mean == null ? '–' : y.mean.toFixed(0) + '%'}${isB || y.mean == null || bas.sight.eyes[i]?.mean == null ? '' : dTag(y.mean - bas.sight.eyes[i].mean, false, ' pt')}</b></div>
       <div class="soon">worst passenger ${y.min == null ? '–' : y.min.toFixed(0) + '% clear'}</div>`).join('');
   // saved operations side by side
@@ -977,24 +1006,23 @@ function renderEval(){
     return [o, evaluate(sv, F)];
   });
   const bb = rows.find(r => r[0].key==='baseline');
-  const tbl = rows.length ? `<table class="cmp"><tr><th>Saved prototype</th><th>Passenger exposure</th><th>Waiting exposure</th><th>Δ</th><th>Waiting zone exposure</th><th>Waiting zone m²</th><th>Δ</th>${C.eyes.map(h => `<th>Clear view ${h} m</th>`).join('')}</tr>
+  const tbl = rows.length ? `<table class="cmp"><tr><th>Saved prototype</th><th>Waiting zone exposure</th><th>Δ</th><th>Waiting zone m²</th><th>Δ</th>${C.eyes.map(h => `<th>Clear view ${h} m</th>`).join('')}</tr>
       ${rows.map(([o, v]) => { const b = bb && o.key!=='baseline' ? bb[1] : null;
-        return `<tr><td>${o.name}</td><td>${v.ex.pax.toFixed(1)}</td><td>${v.ex.wa.toFixed(1)}</td><td>${b ? dTag(pct(v.ex.wa, b.ex.wa), true) || '±0%' : '–'}</td>
-          <td>${v.zs.waitExp == null ? '–' : v.zs.waitExp.toFixed(1)}${b && v.zs.waitExp != null && b.zs.waitExp != null ? dTag(pct(v.zs.waitExp, b.zs.waitExp), true) : ''}</td>
+        return `<tr><td>${o.name}</td>
+          <td>${v.zs.waitExp == null ? '–' : v.zs.waitExp.toFixed(1)}</td><td>${b && v.zs.waitExp != null && b.zs.waitExp != null ? dTag(pct(v.zs.waitExp, b.zs.waitExp), true) || '±0%' : '–'}</td>
           <td>${v.zones.waiting.toFixed(1)}</td><td>${b ? dTag(pct(v.zones.waiting, b.zones.waiting), false) || '±0%' : '–'}</td>
           ${v.sight.eyes.map((y, i) => `<td>${y.mean == null ? '–' : y.mean.toFixed(0) + '%'}${b && y.mean != null && b.sight.eyes[i]?.mean != null ? dTag(y.mean - b.sight.eyes[i].mean, false, ' pt') : ''}</td>`).join('')}</tr>`; }).join('')}</table>
       <div class="note">Same wind (${Math.round(S.wind.from)}° ${compass(S.wind.from)}, ${S.wind.U} m/s) and bus settings for all rows. Δ against the saved baseline.</div>`
     : '<div class="note">Save the baseline and a prototype to compare them here.</div>';
-  $('#evalP').innerHTML = `<div class="eh"><h2>Evaluation${isB ? ' · baseline' : ' · against the baseline'}</h2><span class="sub">${cur.ex.nPax} passenger points (2 per column bay) · ${dirty(S.op) ? 'unsaved edits' : 'saved version'}</span></div>
+  $('#evalP').innerHTML = `<div class="eh"><h2>Evaluation${isB ? ' · baseline' : ' · against the baseline'}</h2><span class="sub">${nIn} of ${nAll} passenger points in the Waiting zone (2 per column bay) · ${dirty(S.op) ? 'unsaved edits' : 'saved version'}</span></div>
     <div class="ecards">
-      <div class="ecard"><h4><i>1</i>Exposure <span class="sub">schematic index, not µg/m³</span></h4>${exRow('Waiting area mean', 'wa')}${exRow(`Passenger mean (${cur.ex.nPax})`, 'pax')}
-        <div class="big"><span>Waiting area in mid / high band</span><b>${cur.ex.hiShare.toFixed(0)}%</b></div></div>
-      <div class="ecard"><h4><i>2</i>Zones <span class="sub">same plume field, geometric checks</span></h4>${zRows}</div>
+      <div class="ecard"><h4><i>1</i>Exposure <span class="sub">Waiting zone, schematic index, not µg/m³</span></h4>${exRows}</div>
+      <div class="ecard"><h4><i>2</i>Safety &amp; accessibility <span class="sub">clear path, kerb, canopy, seats</span></h4>${zRows}</div>
       <div class="ecard"><h4><i>3</i>View of an approaching bus <span class="sub">${Math.min(C.d0, C.d1)}–${Math.max(C.d0, C.d1)} m upstream</span></h4>${sRows}
         <div class="ctl">Bus <input type="number" id="sgD0" min="2" max="60" step="1" value="${C.d0}">–<input type="number" id="sgD1" min="2" max="60" step="1" value="${C.d1}"> m ·
           eyes <input type="number" id="sgE0" min="0.6" max="2" step="0.1" value="${C.eyes[0]}"> / <input type="number" id="sgE1" min="0.6" max="2" step="0.1" value="${C.eyes[1]}"> m
           <label><input type="checkbox" id="sgOn" ${S.sightOn ? 'checked' : ''}> show rays</label><button class="b" id="sgRst">Reset</button></div>
-        <div class="soon">Share of rays to the bus front (route sign ${SIGHT.targetZ} m) not blocked by screens, display, columns, trees, planters, seats, bollards, pole. Drag a passenger to test another position.</div></div>
+      </div>
     </div>${tbl}`;
   const upd = () => { SIGHT_CFG = {d0:num($('#sgD0').value, 10), d1:num($('#sgD1').value, 20), eyes:[num($('#sgE0').value, 1), num($('#sgE1').value, 1.5)]}; store.set('lta.sight', SIGHT_CFG); render(); };
   for (const k of ['#sgD0', '#sgD1', '#sgE0', '#sgE1']) $(k).onchange = upd;
@@ -1072,7 +1100,7 @@ function infoFor(sh){
   const [,b] = shelterY(sh), cols = columnsOf(sh), want = sh.s1 - 0.25*(sh.s1 - sh.s0);
   let best = null;
   for (let i=0;i+1<cols.length;i++){
-    const m = (cols[i].s + cols[i+1].s)/2, room = cols[i+1].s - cols[i].s - CFG.COL - 0.3;
+    const m = (cols[i].s + cols[i+1].s)/2, room = cols[i+1].s - cols[i].s - colSize(sh) - 0.3;
     if (!best || Math.abs(m-want) < Math.abs(best.m-want)) best = {m, room};
   }
   const m = best ? best.m : (sh.s0+sh.s1)/2, w = clamp(best ? best.room : 1, 0.4, CFG.INFO.W);
@@ -1095,20 +1123,33 @@ function syncDerived(els){
   const taken = new Set(els.filter(e => e.type==='pax' && e.auto===false && e.from).map(e => e.from));
   els = els.filter(e => e.type!=='waiting' && !(e.type==='pax' && e.auto===true));
   for (const sh of shs) els.push(waitingFor(sh));
-  return els.concat(autoPax(shs).filter(p => !taken.has(p.id)));
+  return els.concat(autoPax(shs, zonesOf(els, 'waiting')).filter(p => !taken.has(p.id)));
 }
 function roofLen(els){ return shelters(els).reduce((a, x) => a + (x.s1 - x.s0), 0); }
+// a filtering zone around a generated buffer or shield (Separate): it counts for "Shielded by filtering zone"
+const filterAround = (s0, s1, y0, y1, note) => zoneRect('filter', s0, s1, y0, y1, 'Separate: ' + note);
+// Separate on a roof: solid front shield on the most exposed stretch, broken at the door zones
+function frontShield(field, sh){
+  const [a, z] = exposedWindow(field, sh, CFG.R1_SHARE), [f] = shelterY(sh), out = [];
+  for (const [p, q] of freeSpans(a, z)) if (q - p > 1) out.push({id:uid(), type:'screen', kind:'solid', s0:r1(p), y0:r1(f), s1:r1(q), y1:r1(f), note:'Separate: front shield'}, filterAround(p, q, f - 0.15, f + 0.15, 'front shield'));
+  return out;
+}
+// In-place (roof stays): R1 = Separate (front shield + end wall), R2 = Reorient (seats on the exposed stretch turned away from the road)
 function makeInplace(base, field, variant, st){
-  const els = clone(base), R1 = variant.includes('R1'), R2 = variant.includes('R2'), through = st.walk_route === 'through';
+  let els = clone(base); const R1 = variant.includes('R1'), R2 = variant.includes('R2'), through = st.walk_route === 'through';
   for (const sh of shelters(els)){
     const {end} = protectSpan(field, sh, CFG.R1_SHARE), [a, z] = exposedWindow(field, sh, CFG.R1_SHARE), [f] = shelterY(sh);
     if (R1){
-      // front screen on the most exposed stretch of the front edge, broken at the door zones
-      for (const [p, q] of freeSpans(a, z)) if (q - p > 1) els.push({id:uid(), type:'screen', kind:'solid', s0:r1(p), y0:r1(f), s1:r1(q), y1:r1(f), note:'R1 front screen'});
-      const D = shelterY(sh)[1] - f, ws = end==='up' ? sh.s0 : sh.s1, wl = through ? Math.max(0.6, D - 1.5) : D;
-      els.push({id:uid(), type:'screen', kind:'solid', s0:r1(ws), y0:r1(f), s1:r1(ws), y1:r1(f + wl), note: through ? 'end wall, shortened: walk route passes through the shelter' : 'end wall'});
+      els.push(...frontShield(field, sh));
+      // end wall; with the walk route through the shelter it leaves the clear width under the roof
+      const D = shelterY(sh)[1] - f, ws = end==='up' ? sh.s0 : sh.s1, wl = through ? D - CFG.ROOF_CLEAR : D;
+      if (wl >= 0.3) els.push({id:uid(), type:'screen', kind:'solid', s0:r1(ws), y0:r1(f), s1:r1(ws), y1:r1(f + wl), note: through ? 'end wall, shortened: walk route passes through the shelter' : 'end wall'});
     }
-    if (R2) els.push(...seatsFor(sh, a, z, 'away'));
+    if (R2){
+      // seats already on the exposed stretch are replaced by the turned ones
+      els = els.filter(e => !(e.type==='seat' && (e.s0 + e.s1)/2 >= a && (e.s0 + e.s1)/2 <= z && e.y0 >= f - 0.01 && e.y1 <= shelterY(sh)[1] + 0.01));
+      els.push(...seatsFor(sh, a, z, 'away'));
+    }
     sh.note = 'in-place ' + variant;
   }
   return els;
@@ -1116,9 +1157,10 @@ function makeInplace(base, field, variant, st){
 function freeEnds(st){ const f = st.free_end; return {up: f==='both_ends'||f==='upstream', down: f==='both_ends'||f==='downstream'}; }
 // parts of a roof cut at c with gap W. keep = the parts grow outward by W in total so the roof length is unchanged;
 // growth only goes to a free end (free_end), so with no free end the gap is cut out of the roof.
-function splitParts(sh, c, W, keep, fe){
+function splitParts(sh, c, W, keep, fe, exposed){
   fe = fe || {up:true, down:true};
-  const eu = !keep ? 0 : fe.up && fe.down ? W/2 : fe.up ? W : 0, ed = !keep ? 0 : fe.down ? W - eu : 0;
+  // both ends free: the roof grows away from the exposed end when that is known, else evenly
+  const eu = !keep ? 0 : fe.up && fe.down ? (exposed==='up' ? 0 : exposed==='down' ? W : W/2) : fe.up ? W : 0, ed = !keep ? 0 : fe.down ? W - eu : 0;
   return [[sh.s0 - eu, c - W/2], [c + W/2, sh.s1 + ed]];
 }
 function makeSplit(base, field, st, opt){
@@ -1130,30 +1172,45 @@ function makeSplit(base, field, st, opt){
     for (let i=0; i+k<pr.length; i++){ const m = pr.slice(i,i+k).reduce((x,p)=>x+p.c,0); if (m>best+1e-6){best=m; bi=i;} }
     // gap over the most exposed stretch, kept inside the roof (both parts >= 2 m); no plume on the roof -> centre
     const g0 = clamp(bi < 0 ? (sh.s0+sh.s1-W)/2 : pr[bi].s, sh.s0 + 2, sh.s1 - 2 - W), g1 = g0 + W;
-    if (g1 > sh.s1 - 2 + 1e-6) continue;   // roof too short to split (tolerance: g0 clamped to s1 - 2 - W comes back with rounding error)
-    const parts = splitParts(sh, (g0+g1)/2, W, opt.keep, fe), [f] = shelterY(sh);
+    if (g1 > sh.s1 - 2 + 1e-6){ if (opt.sep !== false) els.push(...frontShield(field, sh)); continue; }   // roof too short to split: Separate only (tolerance: g0 clamped to s1 - 2 - W comes back with rounding error)
+    const parts = splitParts(sh, (g0+g1)/2, W, opt.keep, fe, exposedEnd(field, sh)), [f] = shelterY(sh);
     els = els.filter(e => e !== sh);
-    for (const [a,b] of parts) els.push({id:uid(), type:'shelter', s0:r1(a), s1:r1(b), off:sh.off||0, ...(sh.colShape ? {colShape:sh.colShape} : {}), ...(sh.colRows ? {colRows:sh.colRows} : {}), ...(sh.colAt ? {colAt:sh.colAt} : {}), ...(sh.depth ? {depth:sh.depth} : {}), note:'split segment'});
-    els.push({id:uid(), type:'tree', s:r1((g0+g1)/2), y:r1(f+1.2), r:r1(Math.min(1.5, W/2-0.1))});
+    els = els.filter(e => !((e.type==='seat' || e.type==='screen') && (e.s0 + e.s1)/2 >= g0 && (e.s0 + e.s1)/2 <= g1));   // the gap stays open
+    const made = parts.map(([a,b]) => ({id:uid(), type:'shelter', s0:r1(a), s1:r1(b), off:sh.off||0, ...(sh.colShape ? {colShape:sh.colShape} : {}), ...(sh.colRows ? {colRows:sh.colRows} : {}), ...(sh.colAt ? {colAt:sh.colAt} : {}), ...(sh.colSize ? {colSize:sh.colSize} : {}), ...(sh.colInset != null ? {colInset:sh.colInset} : {}), ...(sh.depth ? {depth:sh.depth} : {}), note:'split segment'}));
+    els.push(...made, {id:uid(), type:'tree', s:r1((g0+g1)/2), y:r1(f+1.2), r:r1(Math.min(1.5, W/2-0.1))});
+    if (opt.sep !== false){
+      // Separate: low greenery buffer across the front of the gap, front shield on the segment that takes the most exhaust
+      if (W > 1) els.push({id:uid(), type:'planter', s0:r1(g0+0.2), s1:r1(g1-0.2), y0:r1(f), y1:r1(f+0.6), note:'Separate: buffer in the gap'}, filterAround(g0+0.2, g1-0.2, f, f+0.6, 'buffer in the gap'));
+      const load = x => { const p = stripExposure(field, x); return p.reduce((a, q) => a + q.c, 0)/p.length; };
+      els.push(...frontShield(field, made.slice().sort((x, y) => load(y) - load(x))[0]));
+    }
   }
   return ensureInfo(regenWaiting(els));
 }
 function regenWaiting(els){ return syncDerived(els.filter(e => !(e.type==='pax' && e.auto===false && e.from))); }
 // rear room for the setback: the walk route and a bicycle zone behind the baseline roof stay behind the moved roof
-function latRoom(){ return S.site.footBack - S.site.back - CFG.WALK - bikeDepth(baseEls()); }
-function makeLateral(base, field, site){
+function latRoom(){ return S.site.footBack - S.site.back - S.site.shOff - CFG.WALK - bikeDepth(baseEls()); }
+// Transversal: Setback (the whole roof moves back, its seats, screens and display with it) + Separate (low buffer in the freed strip)
+function makeLateral(base, field, site, opt){
   let els = clone(base);
   const room = latRoom();
   const off = r1(clamp(room, 0, CFG.SETBACK));
+  for (const e of els) if (['seat', 'screen', 'info'].includes(e.type)) for (const sh of shelters(els)){
+    const m = (e.s0 + e.s1)/2, [f, b] = shelterY(sh);
+    if (m >= sh.s0 && m <= sh.s1 && e.y0 >= f - 0.01 && e.y1 <= b + 0.01){ e.y0 = r2(e.y0 + off); e.y1 = r2(e.y1 + off); break; }
+  }
   const doorZones = busList().flatMap(x => x.doors);
   els = els.filter(e => e.type!=='bollard');
   for (const sh of shelters(els)){
-    sh.off = off;
+    sh.off = r2((sh.off||0) + off);
     const end = exposedEnd(field, sh), len = sh.s1 - sh.s0;
     let a, z;
     if (end==='up'){ a = sh.s0 - 1.5; z = sh.s0 + 0.6*len; for (const [d0] of doorZones) if (z > d0-0.6 && a < d0-0.6) z = Math.min(z, d0-0.6); }
     else { z = sh.s1 + 1.5; a = sh.s1 - 0.6*len; for (const [,d1] of doorZones) if (a < d1+0.6 && z > d1+0.6) a = Math.max(a, d1+0.6); }
-    els.push({id:uid(), type:'planter', s0:r1(a), s1:r1(z), y0:0.6, y1:r1(Math.max(1.6, CFG.SH_FRONT+off-0.2)), note:'low buffer ≤ 1 m'});
+    if (!opt || opt.sep !== false){
+      const y1 = r1(Math.max(1.6, shelterY(sh)[0] - 0.2));
+      els.push({id:uid(), type:'planter', s0:r1(a), s1:r1(z), y0:0.6, y1, note:'Separate: low buffer ≤ 1 m'}, filterAround(a, z, 0.6, y1, 'low buffer'));
+    }
     const [b0, b1] = end==='up' ? [z+0.8, sh.s1] : [sh.s0, a-0.8];
     for (let s=b0; s<=b1+1e-6; s+=1.5) els.push({id:uid(), type:'bollard', row:'kerb', s:r1(s), y:0.45});
   }
@@ -1301,8 +1358,8 @@ function zonesFor(els, bikes){
     out.push(zoneRect('canopy', sh.s0, sh.s1, f, b, 'roof'));
     if (sh.link && nx && nx.s0 > sh.s1) out.push(zoneRect('canopy', sh.s1, nx.s0, f, b, 'roof link'));
   });
-  for (const w of els.filter(e => e.type==='waiting')) out.push(zoneRect('waiting', w.s0, w.s1, w.y0, w.y1, 'under the roof'));
-  if (!shs.length) out.push(zoneRect('waiting', site.z0 + 2, site.z1 - 2, 1.0, 2.4, 'no shelter: kerbside waiting'));
+  if (!kept('waiting')) for (const w of els.filter(e => e.type==='waiting')) out.push(zoneRect('waiting', w.s0, w.s1, w.y0, w.y1, 'under the roof'));
+  if (!shs.length && !kept('waiting')) out.push(zoneRect('waiting', site.z0 + 2, site.z1 - 2, 1.0, 2.4, 'no shelter: kerbside waiting'));
   // no filtering zone here: the designer draws where filtering should act (Edit & compare), then fills it with screens / greenery
   const lo = Math.min(site.z0, shs.length ? shs[0].s0 : site.z0) - 6, hi = Math.max(site.z1, shs.length ? shs[shs.length-1].s1 : site.z1) + 6;
   if (kept('crossing')) return out;
@@ -1331,11 +1388,11 @@ function bikeDepth(els){
 }
 // the operations copy the hand-placed baseline zones (bicycle, crossing set by hand); lateral: those behind the baseline roof move back with the roof
 // MAN_ZONES follow the roof / stop zone until moved by hand in the baseline (then e.man)
-const MAN_ZONES = ['boarding', 'crossing'];
+const MAN_ZONES = ['boarding', 'crossing', 'waiting'];
 const isMan = e => e.type==='zone' && MAN_ZONES.includes(e.zone) && S.op==='baseline';
 const manualZones = els => zonesOf(els).filter(z => z.zone==='bicycle' || (MAN_ZONES.includes(z.zone) && z.man));
 function bikeFromBase(els){
-  const base = baseEls(), bz = manualZones(base); if (!bz.length) return [];
+  const base = baseEls(), bz = manualZones(base).filter(z => z.zone!=='waiting'); if (!bz.length) return [];   // a baseline waiting zone set by hand stays in the baseline; prototypes read theirs from their own roof
   const bb = shelters(base).map(sh => shelterY(sh)[1]), ob = shelters(els).map(sh => shelterY(sh)[1]);
   const d = bb.length && ob.length ? Math.max(...ob) - Math.max(...bb) : 0, behind = bb.length ? Math.max(...bb) - 0.05 : Infinity;
   return bz.map(z => { const n = {...clone(z), id:uid()}; delete n.man; if (d > 0.01 && z.y0 >= behind){ n.y0 = r1(z.y0 + d); n.y1 = r1(Math.min(S.site.footBack, z.y1 + d)); if (n.y1 - n.y0 < 0.3) n.y1 = r1(n.y0 + 0.3); } return n; });
@@ -1353,6 +1410,27 @@ function filterFill(f, els){
 }
 // versions saved before zones existed get the starting zones once
 function withZones(els){ if (els.some(e => e.type==='zone')) return els; const bz = bikeFromBase(els); return els.concat(zonesFor(els, bz), bz); }
+// footprints that narrow a walking path: {bb:[s0,s1,y0,y1], hit(s,y)}; thin parts get at least half a raster cell so they always block
+function groundObstacles(els){
+  const out = [], P = sightH(), t = 0.06;
+  const cir = (c, r) => { r = Math.max(r, t); out.push({bb:[c[0]-r, c[0]+r, c[1]-r, c[1]+r], hit:(x, y) => Math.hypot(x-c[0], y-c[1]) <= r}); };
+  const seg = (a, b) => { const dx = b[0]-a[0], dy = b[1]-a[1], L2 = dx*dx + dy*dy || 1e-9;
+    out.push({bb:[Math.min(a[0], b[0])-t, Math.max(a[0], b[0])+t, Math.min(a[1], b[1])-t, Math.max(a[1], b[1])+t],
+      hit:(x, y) => { const k = clamp(((x-a[0])*dx + (y-a[1])*dy)/L2, 0, 1); return Math.hypot(x-a[0]-k*dx, y-a[1]-k*dy) <= t; }}); };
+  const poly = pts => { const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+    out.push({bb:[Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)], hit:(x, y) => { let pos = false, neg = false;
+      for (let i=0;i<pts.length;i++){ const a = pts[i], b = pts[(i+1)%pts.length], c = (b[0]-a[0])*(y-a[1]) - (b[1]-a[1])*(x-a[0]); if (c > 1e-9) pos = true; else if (c < -1e-9) neg = true; }
+      return !(pos && neg); }}); };
+  for (const e of els){
+    if (e.type==='screen') seg([e.s0, e.y0], [e.s1, e.y1]);
+    else if (e.type==='planter') poly([[e.s0,e.y0],[e.s1,e.y0],[e.s1,e.y1],[e.s0,e.y1]]);
+    else if (e.type==='seat') poly(seatGeo(e).seat);
+    else if (e.type==='tree') cir([e.s, e.y], P.treeTr);
+    else if (e.type==='bollard') cir([e.s, e.y], P.bolR);
+    else if (e.type==='shelter') for (const c of columnsOf(e)) cir([c.s, c.y], colSize(e)/2);
+  }
+  return out;
+}
 // zone checks on a 0.1 m raster; the waiting-zone exposure samples the same plume field as the waiting area
 function zoneStats(els, F){
   const zs = zonesOf(els), out = {area:Object.fromEntries(ZONE_DEF.map(z => [z.key, 0]))};
@@ -1376,9 +1454,10 @@ function zoneStats(els, F){
   out.waitCrossing = inter('waiting','crossing');
   out.waitKerb = W.length ? Math.min(...W.map(r => r.y0 - Math.max(kerbAt(r.s0), kerbAt(r.s1)))) : null;
   if (F && wa > 0){
-    let n = 0, sum = 0;
-    for (let j=0;j<ny;j+=2) for (let i=0;i<nx;i+=2) if (mask.waiting[j*nx+i]){ sum += sample(F, s0 + (i+0.5)*g, y0 + (j+0.5)*g); n++; }
+    let n = 0, sum = 0, hi = 0;
+    for (let j=0;j<ny;j+=2) for (let i=0;i<nx;i+=2) if (mask.waiting[j*nx+i]){ const c = sample(F, s0 + (i+0.5)*g, y0 + (j+0.5)*g); sum += c; n++; if (c >= CFG.LEVELS[1]) hi++; }
     out.waitExp = n ? sum/n*100 : null;
+    out.waitHi = n ? hi/n*100 : null;   // share of the Waiting zone in the mid / high band
   }
   let wl = 0, sh = 0;
   const active = zonesOf(els, 'filter').filter(f => filterFill(f, els).length);
@@ -1393,6 +1472,31 @@ function zoneStats(els, F){
   let run = 0, best = 0;
   for (let i=0;i<nx;i++){ let c = false; for (let j=0;j<ny && !c;j++) c = mask.crossing[j*nx+i] === 1; run = c ? run + g : 0; best = Math.max(best, run); }
   out.crRun = best;
+  // ground obstacles on the same raster (columns, seats, screens, planters, bollards, trunks; the display hangs overhead): clear widths are measured past them
+  const ob = new Uint8Array(nx*ny);
+  for (const o of groundObstacles(els)){
+    const i0 = clamp(Math.floor((o.bb[0]-s0)/g), 0, nx), i1 = clamp(Math.ceil((o.bb[1]-s0)/g), 0, nx), j0 = clamp(Math.floor((o.bb[2]-y0)/g), 0, ny), j1 = clamp(Math.ceil((o.bb[3]-y0)/g), 0, ny);
+    for (let j=j0;j<j1;j++) for (let i=i0;i<i1;i++) if (o.hit(s0 + (i+0.5)*g, y0 + (j+0.5)*g)) ob[j*nx+i] = 1;
+  }
+  const longest = (i, j0, j1, free) => { let r = 0, b = 0; for (let j=j0;j<j1;j++){ r = free(j*nx+i) ? r + g : 0; b = Math.max(b, r); } return b; };
+  // walk route through the shelter: widest free strip across the roof at every point along it
+  out.through = (S.stop.walk_route || 'behind')==='through';
+  if (out.through){
+    let m = Infinity;
+    for (const sh of shelters(els)){
+      const [f, b] = shelterY(sh), j0 = clamp(Math.round((f-y0)/g), 0, ny), j1 = clamp(Math.round((b-y0)/g), 0, ny);
+      for (let i = clamp(Math.ceil((sh.s0-s0)/g - 0.5), 0, nx); i < nx && s0 + (i+0.5)*g <= sh.s1; i++) m = Math.min(m, longest(i, j0, j1, q => !ob[q]));
+    }
+    out.roofClear = m < Infinity ? m : null;
+  }
+  // crossing zone clear width past obstacles, narrowest point along the stop (the waiting zone may overlap it)
+  let cf = Infinity;
+  for (let i=0;i<nx;i++){
+    let any = false; for (let j=0;j<ny && !any;j++) any = mask.crossing[j*nx+i] === 1;
+    if (any) cf = Math.min(cf, longest(i, 0, ny, q => mask.crossing[q] && !ob[q]));
+  }
+  out.crFree = cf < Infinity ? cf : null;
+  out.seats = els.filter(e => e.type==='seat').reduce((a, e) => a + Math.floor((e.s1 - e.s0)/CFG.SEAT_PP + 1e-6), 0);
   out.crBlocked = inter('crossing','waiting') + inter('crossing','filter');
   out.bikeCrossing = inter('crossing','bicycle');
   out.bikeBoarding = inter('boarding','bicycle');
@@ -1407,26 +1511,27 @@ function zoneStats(els, F){
 // ---------- 3 · sightline to an approaching bus ----------
 // Each passenger point looks upstream at the front of a bus d metres away (d = d0…d1 m, 1 m steps) on the driving line;
 // targets = 3 points across the bus front at the route-number sign height. Eye heights e.g. 1.0 m (seated) and 1.5 m (standing),
-// above the footpath. A ray is blocked by a solid screen / end wall, display panel, column, tree trunk or crown, planter,
+// above the footpath. The display hangs from the roof and blocks nothing. A ray is blocked by a solid screen / end wall, column, tree trunk or crown, planter,
 // seat, bollard or the stop pole when it passes at that height; a perforated screen counts half. Other buses are ignored.
 const SIGHT_DEF = {d0:10, d1:20, eyes:[1.0, 1.5]};
 const SIGHT = {targetZ:2.5, lateral:[-0.9, 0, 0.9], foot:0.15};
 let SIGHT_CFG = {...SIGHT_DEF, ...(store.get('lta.sight') || {})};
-const SIGHT_H = {scrGap:0.1, scrH:2.0, infB:1.6, infH:0.6, colD:0.3, roofH:2.7, seatH:0.45, backH:0.4, planterH:0.9, treeTr:0.15, treeCh:2.5, bolR:0.08, bolH:0.9, poleR:0.05, poleH:2.8};
+const SIGHT_H = {scrGap:0.1, scrH:2.0, colD:0.3, roofH:2.7, seatH:0.45, backH:0.4, planterH:0.9, treeTr:0.15, treeCh:2.5, bolR:0.08, bolH:0.9, poleR:0.05, poleH:2.8};
 function sightH(){ try { return {...SIGHT_H, ...DSN.params}; } catch (err){ return SIGHT_H; } }   // Design page sliders when set
 function sightObstacles(els){
   const P = sightH(), F = SIGHT.foot, ob = [];
   const seg = (a, b, z0, z1, w) => ob.push({k:'seg', a, b, z0:F+z0, z1:F+z1, w});
   for (const e of els){
     if (e.type==='screen') seg([e.s0, e.y0], [e.s1, e.y1], P.scrGap, P.scrGap + P.scrH, (e.kind||'solid')==='solid' ? 1 : 0.5);
-    else if (e.type==='info') seg([e.s0, e.y0], [e.s1, e.y1], P.infB, P.infB + P.infH, 1);
     else if (e.type==='planter') ob.push({k:'poly', pts:[[e.s0,e.y0],[e.s1,e.y0],[e.s1,e.y1],[e.s0,e.y1]], z0:F, z1:F+P.planterH, w:1});
     else if (e.type==='seat'){ const q = seatGeo(e); ob.push({k:'poly', pts:q.seat, z0:F, z1:F+P.seatH, w:1}); seg(q.back[0], q.back[1], P.seatH, P.seatH + P.backH, 1); }
     else if (e.type==='tree'){ ob.push({k:'cir', c:[e.s, e.y], r:P.treeTr, z0:F, z1:F+P.treeCh+e.r, w:1}); ob.push({k:'sph', c:[e.s, e.y, F+P.treeCh+e.r], r:e.r, w:1}); }
     else if (e.type==='bollard') ob.push({k:'cir', c:[e.s, e.y], r:P.bolR, z0:F, z1:F+P.bolH, w:1});
-    else if (e.type==='shelter') for (const c of columnsOf(e)) ob.push({k:'cir', c:[c.s, c.y], r:P.colD/2, z0:F, z1:F+P.roofH, w:1});
+    else if (e.type==='shelter') for (const c of columnsOf(e)) ob.push({k:'cir', c:[c.s, c.y], r:colSize(e)/2, z0:F, z1:F+P.roofH, w:1});
   }
-  ob.push({k:'cir', c:[0.4, 0.75], r:P.poleR, z0:F, z1:F+P.poleH, w:1});
+  ob.push({k:'cir', c:[0.4, S.site ? S.site.poleY : 0.75], r:P.poleR, z0:F, z1:F+P.poleH, w:1});   // the pole where it stands (pole_y_m)
+  // queued buses: the first bus is the one boarding, the ones behind it (2nd onward, upstream) hide the next approaching bus
+  for (const b of busList()) if (b.k >= 1) ob.push({k:'poly', pts:b.poly, z0:0, z1:P.busH || 3.2, w:1});
   return ob;
 }
 // blocking weight (0…1) of one ray E → T (3D points)
@@ -1470,9 +1575,9 @@ function sightTargets(p, d, dl){
   const sb = p.s - d, yc = driveY(sb, dl);
   return SIGHT.lateral.map(l => [sb, yc + l, SIGHT.targetZ]);
 }
-// share of the 10–20 m approach each passenger can see, per eye height
+// share of the 10–20 m approach each passenger in a Waiting zone can see, per eye height (both eyes for every point)
 function sightline(els){
-  const pax = els.filter(e => e.type==='pax'), ob = sightObstacles(els), dl = driveLine(), C = SIGHT_CFG;
+  const pax = paxInWaiting(els), ob = sightObstacles(els), dl = driveLine(), C = SIGHT_CFG;
   const ds = []; for (let d = Math.min(C.d0, C.d1); d <= Math.max(C.d0, C.d1) + 1e-6; d += 1) ds.push(d);
   const eyes = C.eyes.map(h => {
     const per = pax.map(p => {
@@ -1489,7 +1594,7 @@ function evaluate(els, F){ const z = zoneStats(els, F); return {ex:exposure(F, e
 // ---------- rendering ----------
 const NS = 'http://www.w3.org/2000/svg';
 const svg = $('#plan');
-const C = {road:'#d9d9d9', foot:'#f2eee6', kerb:'#2b2b2b', lane:'#ffffff', shelter:'rgba(29,99,184,0.32)', ghost:'rgba(29,99,184,0.10)',
+const C = {road:'#d9d9d9', foot:'#ffffff', kerb:'#2b2b2b', lane:'#ffffff', shelter:'rgba(29,99,184,0.32)', ghost:'rgba(29,99,184,0.10)',
            ghostLine:'#6f8fb8', col:'#123f7a', screen:'#123f7a', wa:'#123f7a', green:'#a5d16f', greenL:'#3b7d23', red:'#d7263d',
            bollard:'#9a9a9a', pax:'#1f2328', bus:'#4a4a4a', sel:'#f08c00', dim:'#0b5394', gap:'#b45309', info:'#6a3d9a', seat:'#d8b98f', seatL:'#7a5230'};
 function h(tag, attrs={}, parent){ const e=document.createElementNS(NS,tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
@@ -1506,7 +1611,7 @@ function screenNode(e, parent, ns){
 function drawSight(ui, els){
   const ob = sightObstacles(els), dl = driveLine(), C = SIGHT_CFG, g = h('g', {'pointer-events':'none'}, ui), ns = {'vector-effect':'non-scaling-stroke'};
   const hs = C.eyes, d0 = Math.min(C.d0, C.d1), d1 = Math.max(C.d0, C.d1);
-  for (const p of els.filter(e => e.type==='pax')) for (const d of [d0, (d0+d1)/2, d1]){
+  for (const p of paxInWaiting(els)) for (const d of [d0, (d0+d1)/2, d1]){
     const T = sightTargets(p, d, dl)[1], bl = hs.map(hh => rayBlock([p.s, p.y, SIGHT.foot + hh], T, ob));
     const col = bl.every(b => b >= 1) ? '#d7263d' : bl.some(b => b > 0) ? '#e3a008' : '#2f9e44';
     h('line', {x1:p.s, y1:Y(p.y), x2:T[0], y2:Y(T[1]), stroke:col, 'stroke-width':1.3, 'stroke-opacity':0.75, ...ns}, g);
@@ -1517,11 +1622,14 @@ function drawSight(ui, els){
 // or one centre line (colAt m behind the roof front, default mid-depth) – the ridge of a gable roof
 const COL_ROWS = {back:'back edge', front:'front edge', both:'front + back', centre:'centre line'};
 const colLine = sh => { const [f,b] = shelterY(sh); return clamp(sh.colAt > 0 ? f + sh.colAt : (f + b)/2, f + 0.3, b - 0.3); };
+// column size (square width / round Ø, m) and the inset of the end columns' centres from the roof ends, per roof
+const colSize = sh => sh.colSize > 0 ? sh.colSize : CFG.COL;
+const colInset = sh => clamp(sh.colInset != null && sh.colInset >= 0 ? sh.colInset : 0.3, 0, Math.max(0, (sh.s1 - sh.s0)/2 - 0.1));
 function columnsOf(sh){
-  const [f,b] = shelterY(sh), len = sh.s1 - sh.s0, n = sh.cols >= 2 ? sh.cols - 1 : Math.max(1, Math.ceil((len-0.6)/CFG.COL_SPAN));   // cols: count per row set from the site, else ≤ COL_SPAN spacing
+  const [f,b] = shelterY(sh), len = sh.s1 - sh.s0, e = colInset(sh), n = sh.cols >= 2 ? sh.cols - 1 : Math.max(1, Math.ceil((len - 2*e)/CFG.COL_SPAN));   // cols: count per row set from the site, else ≤ COL_SPAN spacing
   const ys = sh.colRows==='both' ? [f + 0.3, b - 0.3] : sh.colRows==='front' ? [f + 0.3] : sh.colRows==='centre' ? [colLine(sh)] : [b - 0.3];
   const out = [];
-  for (const y of ys) for (let i=0;i<=n;i++) out.push({s: sh.s0 + 0.3 + (len-0.6)*i/n, y});
+  for (const y of ys) for (let i=0;i<=n;i++) out.push({s: sh.s0 + e + (len - 2*e)*i/n, y});
   return out;
 }
 function scen(){ return S.scen[S.op]; }
@@ -1541,7 +1649,7 @@ function render(){
   svg.classList.toggle('layer-zone', S.layer==='zone'); svg.classList.toggle('layer-comp', S.layer!=='zone');
   svg.classList.toggle('zauto', S.op==='baseline');
   const g = n => h('g', {id:n}, svg);
-  const base = g('base'), zoneG = g('zones'), plumeG = g('plume'), green = g('green'), shG = g('shelters'), top = g('top'), ui = g('ui');
+  const base = g('base'), zoneG = g('zones'), plumeG = g('plume'), shG = g('shelters'), planterG = g('planters'), treeG = g('trees'), seatG = g('seats'), top = g('top'), ui = g('ui');   // fixed layers, whatever the creation order: roof, then planters, then the rest
   plumeG.setAttribute('pointer-events', 'none');   // the plume lies over the zones: clicks go through it
   const ns = {'vector-effect':'non-scaling-stroke'};
   // road / footpath / bay, drawn across the whole visible window (zoomed out over the satellite photo too)
@@ -1551,7 +1659,7 @@ function render(){
   const footD = `M${kerbPts.map(p=>`${p[0]},${Y(p[1])}`).join(' L')} L${vb.sMax},${Y(site.footBack)} L${vb.sMin},${Y(site.footBack)} Z`;
   h('rect', {x:vb.sMin, y:Y(vb.yMax), width:vb.sMax-vb.sMin, height:vb.yMax-vb.yMin, fill:C.road}, base);
   h('path', {d:footD, fill:C.foot}, base);
-  h('rect', {x:vb.sMin, y:Y(vb.yMax), width:vb.sMax-vb.sMin, height:Math.max(0, vb.yMax-site.footBack), fill:'#e9e5dc'}, base);
+  h('rect', {x:vb.sMin, y:Y(vb.yMax), width:vb.sMax-vb.sMin, height:Math.max(0, vb.yMax-site.footBack), fill:C.foot}, base);
   const sat = S.satOn && satHref(S.stop.stop_idx);
   if (sat){ const w = SAT[S.stop.stop_idx].w; h('image', {id:'satimg', href:sat, x:-w/2 - site.poleDs, y:Y(site.off + w/2), width:w, height:w, preserveAspectRatio:'none', opacity:S.satA,
     transform:`rotate(${-site.satRot} ${-site.poleDs} ${Y(site.off)})`}, base); }
@@ -1594,9 +1702,9 @@ function render(){
     const sel = S.sel===e.id;
     let node;
     if (e.type==='planter'){
-      node = h('rect', {x:e.s0, y:Y(e.y1), width:e.s1-e.s0, height:e.y1-e.y0, rx:0.15, fill:C.green, stroke:C.greenL, 'stroke-width':1.2, ...ns}, green);
+      node = h('rect', {x:e.s0, y:Y(e.y1), width:e.s1-e.s0, height:e.y1-e.y0, rx:0.15, fill:C.green, stroke:C.greenL, 'stroke-width':1.2, ...ns}, planterG);
     } else if (e.type==='tree'){
-      node = h('g', {}, green);
+      node = h('g', {}, treeG);
       h('circle', {cx:e.s, cy:Y(e.y), r:e.r, fill:C.green, 'fill-opacity':0.9, stroke:C.greenL, 'stroke-width':1.2, ...ns}, node);
       h('circle', {cx:e.s, cy:Y(e.y), r:0.12, fill:C.greenL}, node);
     } else if (e.type==='shelter'){
@@ -1607,7 +1715,7 @@ function render(){
       continue;
     } else if (e.type==='seat'){
       const c = e.clear ?? CFG.SEAT.CLEAR;
-      node = h('g', {transform:`rotate(${-seatRot(e)} ${(e.s0+e.s1)/2} ${Y((e.y0+e.y1)/2)})`}, shG);
+      node = h('g', {transform:`rotate(${-seatRot(e)} ${(e.s0+e.s1)/2} ${Y((e.y0+e.y1)/2)})`}, seatG);
       h('rect', {x:e.s0, y:Y(e.y1+c), width:e.s1-e.s0, height:c, fill:'rgba(122,82,48,0.06)', stroke:C.seatL, 'stroke-width':0.8, 'stroke-dasharray':'2 2', ...ns}, node);
       h('rect', {x:e.s0, y:Y(e.y1), width:e.s1-e.s0, height:e.y1-e.y0, fill:C.seat, stroke:C.seatL, 'stroke-width':1, ...ns}, node);
       h('line', {x1:e.s0, x2:e.s1, y1:Y(e.y0), y2:Y(e.y0), stroke:C.seatL, 'stroke-width':3, ...ns}, node);
@@ -1623,14 +1731,16 @@ function render(){
   });
   // columns: square or round section with its centre cross (the DXF point BS_COLUMN)
   for (const sh of shs) for (const c of columnsOf(sh)){
-    const a = {fill:C.col, 'fill-opacity':0.45, stroke:C.col, 'stroke-width':1, 'pointer-events':'none', ...ns}, k = CFG.COL*0.85;
-    if (sh.colShape==='round') h('circle', {cx:c.s, cy:Y(c.y), r:CFG.COL/2, ...a}, shG);
-    else h('rect', {x:c.s-CFG.COL/2, y:Y(c.y)-CFG.COL/2, width:CFG.COL, height:CFG.COL, ...a}, shG);
+    const d = colSize(sh), a = {fill:C.col, 'fill-opacity':0.45, stroke:C.col, 'stroke-width':1, 'pointer-events':'none', ...ns}, k = Math.max(0.2, d*0.85);
+    if (sh.colShape==='round') h('circle', {cx:c.s, cy:Y(c.y), r:d/2, ...a}, shG);
+    else h('rect', {x:c.s-d/2, y:Y(c.y)-d/2, width:d, height:d, ...a}, shG);
     h('path', {d:`M${c.s-k},${Y(c.y)}H${c.s+k}M${c.s},${Y(c.y)-k}V${Y(c.y)+k}`, stroke:C.col, 'stroke-width':1, 'pointer-events':'none', ...ns}, shG);
   }
   // buses + pole
   // buses: body along the driving line, nearside doors, exhaust from the model; drag a bus to move it along the line
-  for (const b of busList()){
+  const busOn = S.busOn !== false;
+  if (!busOn) plumeG.setAttribute('display', 'none');   // the bus and its plume are one layer
+  for (const b of busOn ? busList() : []){
     const P = p => `${p[0]},${Y(p[1])}`, M = b.model, ang = Math.atan2(b.u[1], b.u[0])*180/Math.PI;
     const node = h('g', {style:'cursor:grab'}, top); node.dataset.id = 'bus:' + b.k;
     h('path', {d:'M' + b.poly.map(P).join(' L') + ' Z', fill:'#fff', stroke: S.sel==='bus:'+b.k ? C.sel : C.bus, 'stroke-width':1.4, 'stroke-dasharray': b.state==='depart' ? '6 3' : '', ...ns}, node);
@@ -1642,19 +1752,22 @@ function render(){
     const t = label(node, c[0], c[1]-0.15, `${b.k+1} · ${M.name}${b.state==='depart' ? ' · departing' : ''}`, 0.42, 'middle', C.bus);
     t.setAttribute('transform', `rotate(${-ang} ${c[0]} ${Y(c[1])})`);
   }
-  for (const e of exhausts()) h('circle', {cx:e.s, cy:Y(e.y), r:0.18 + 0.06*(e.w - 1), fill:C.red}, top);
+  for (const e of busOn ? exhausts() : []) h('circle', {cx:e.s, cy:Y(e.y), r:0.18 + 0.06*(e.w - 1), fill:C.red}, top);
   // baseline: the pole is dragged along the road onto the real one (commitPole); the plan keeps it at s = 0
   const pd = S.poleDrag || [0, 0];
   const pole = h('g', {transform:`translate(${pd[0]},${-(site.poleY - 0.75 + pd[1])})`, ...(S.op==='baseline' ? {'data-id':'pole', style:'cursor:move'} : {})}, top);
+  if (S.poleOn === false) pole.setAttribute('display', 'none');
   if (S.op==='baseline') h('rect', {x:-0.4, y:Y(1.6), width:1.6, height:1.8, fill:'transparent'}, pole);   // easier to grab
   h('rect', {x:0.05, y:Y(1.1), width:0.7, height:0.7, fill:'#fff', stroke:'#1f2328', 'stroke-width':1.3, ...ns}, pole);
   h('path', {d:`M0.05,${Y(1.1)} l0.7,0.7 M0.75,${Y(1.1)} l-0.7,0.7`, stroke:'#1f2328', 'stroke-width':1.1, ...ns}, pole);
-  label(pole, 0.4, 1.35, 'pole', 0.4, 'middle', '#1f2328');
+  if (S.zlabels !== false) label(pole, 0.4, 1.35, 'pole', 0.4, 'middle', '#1f2328');
   // components hidden from the Components row: roofs, greenery, seats and the point elements go; buses and the pole stay
   const compsOn = S.compsOn !== false;
-  if (!compsOn){ green.setAttribute('display', 'none'); shG.setAttribute('display', 'none'); }
+  if (!compsOn) for (const l of [shG, planterG, treeG, seatG]) l.setAttribute('display', 'none');
   // point elements on top
-  for (const e of compsOn ? els : []){
+  let counted = null;   // passengers counted for the view (set on the first one drawn)
+  const topRank = {screen:0, bollard:1, info:2, pax:3};
+  for (const e of compsOn ? els.filter(x => x.type in topRank).sort((a, b) => topRank[a.type] - topRank[b.type]) : []){
     const sel = S.sel===e.id; let node;
     if (e.type==='screen'){
       node = screenNode(e, top, ns);
@@ -1668,7 +1781,11 @@ function render(){
       node = h('circle', {cx:e.s, cy:Y(e.y), r:0.16, fill:C.bollard, ...(selRow ? {stroke:'#4cc3e6', 'stroke-width':0.08} : {})}, top);
     } else if (e.type==='pax'){
       // sample points sit on the roof: click-through in Select so the roof can be grabbed; drag them with the Passenger tool
-      node = h('circle', {cx:e.s, cy:Y(e.y), r:0.24, fill:C.pax, stroke:'#fff', 'stroke-width':1, 'pointer-events': S.tool==='pax' ? 'auto' : 'none', ...ns}, top);
+      // only passengers inside a Waiting zone count for the view of the bus; the others are drawn hollow grey
+      counted ||= new Set(paxInWaiting(els).map(p => p.id));
+      const inW = counted.has(e.id);
+      node = h('circle', {cx:e.s, cy:Y(e.y), r:0.24, fill:inW ? C.pax : '#ffffff', stroke:inW ? '#fff' : '#9aa0a6', 'stroke-width':inW ? 1 : 1.6, 'pointer-events': S.tool==='pax' ? 'auto' : 'none', ...ns}, top);
+      if (!inW) node.appendChild(document.createElementNS(NS, 'title')).textContent = 'Outside the Waiting zone – not counted for the view of the bus';
     } else continue;
     decorate(node, e, sel);
   }
@@ -1813,7 +1930,7 @@ function drawDims(ui, els, site){
   // road side: stop zone, buses, bay
   dimH(g, site.z0, site.z1, row(0), `stop zone ${r1(site.L)} m`, D, true);
   if (Math.abs(site.z1) > 0.05) dimH(g, Math.min(site.z1, 0), Math.max(site.z1, 0), row(0), `to pole ${r1(Math.abs(site.z1))} m`, G, true);
-  for (const b of busList()) dimH(g, b.tail, b.front, row(1), `${S.bus.type} bus ${r1(b.front-b.tail)} m`, D, true);
+  for (const b of S.busOn !== false ? busList() : []) dimH(g, b.tail, b.front, row(1), `${S.bus.type} bus ${r1(b.front-b.tail)} m`, D, true);
   if (site.bd > 0){
     dimH(g, site.b0, site.b1, row(2), `bay ${r1(site.b1-site.b0)} m`, D, true);
     dimV(g, site.b1 + 0.9, -site.bd, 0, `bay depth ${r1(site.bd)} m`, D);
@@ -1863,13 +1980,15 @@ function renderSide(){
   $('#ops').innerHTML = OPS.map(o => {
     const on = S.op===o.key, ok = al[o.key];
     const savedState = S.saved[o.key] ? (dirty(o.key) ? '● unsaved' : 'saved') : (S.scen[o.key] ? '● unsaved' : '');
-    const why = ok ? (o.key==='baseline' ? 'current shelter from data' : o.zh) : reasonOff(st, o.key);
+    const why = ok ? (o.key==='baseline' ? 'current shelter from data' : o.desc) : reasonOff(st, o.key);
     return `<button class="op ${on?'on':''}" data-op="${o.key}" ${ok?'':'disabled'} title="${esc(why)}">
       <span class="rank">${o.rank||'B'}</span><span><span class="name">${o.name}</span>${o.key===rec?'<span class="rec">✓</span>':''}<br><span class="why">${esc(why)}</span></span><span class="st">${savedState}</span></button>`;
   }).join('');
   // save state + tools
   const d = dirty(S.op);
-  $('#saveState').innerHTML = !S.saved[S.op] ? '<span class="dirty">● not saved</span>' : d ? '<span class="dirty">● unsaved changes</span>' : '<span class="clean">✓ Draft saved</span>';
+  const ae = arcEditing();
+  $('#saveState').innerHTML = (ae ? `<span class="sub" title="Save version also updates this archive option">Archive ${esc(ae.code)} · </span>` : '') +
+    (!S.saved[S.op] ? '<span class="dirty">● not saved</span>' : d ? '<span class="dirty">● unsaved changes</span>' : '<span class="clean">✓ Draft saved</span>');
   for (const b of document.querySelectorAll('.tool[data-tool]')){
     const t = b.dataset.tool;
     let ok = true;
@@ -1879,7 +1998,7 @@ function renderSide(){
   }
   $('#copy').disabled = !scen().els.some(e => e.id===S.sel && e.type!=='waiting'); $('#paste').disabled = !S.clip;
   renderBus();
-  $('#dimsT').classList.toggle('on', !!S.dims); $('#satT').classList.toggle('on', !!S.satOn && !!SAT[S.stop.stop_idx]); $('#satT').disabled = !SAT[S.stop.stop_idx]; $('#satA').disabled = !S.satOn;
+  $('#dimsT').classList.toggle('on', !!S.dims); $('#textT').classList.toggle('on', S.zlabels !== false); $('#satT').classList.toggle('on', !!S.satOn && !!SAT[S.stop.stop_idx]); $('#satT').disabled = !SAT[S.stop.stop_idx]; $('#satA').disabled = !S.satOn;
   $('#zLbl').textContent = Math.round((S.zoom||1)*100) + '%'; $('#zOut').disabled = (S.zoom||1) <= 1;
   $('#undo').disabled = !(S.hist[S.op]||[]).length; $('#redo').disabled = !(S.fut[S.op]||[]).length;
   $('#del').disabled = !S.sel;
@@ -1906,25 +2025,39 @@ function renderSide(){
   if (S.op==='lateral' && S._latInfo && S._latInfo.room < CFG.SETBACK) ws.push(`Rear room allows only ${Math.max(0,S._latInfo.room).toFixed(1)} m setback with a ${CFG.WALK} m walkway${bikeDepth(baseEls()) > 0 ? ' and the bicycle zone' : ''}.`);
   $('#foot').innerHTML = ws.length ? `<div class="warn">${ws.join('<br>')}</div>` : '';   // the plan carries its own key in the toolbar: only warnings here
 }
+// the platform's first judgement per prototype; the designer decides what stays
+function opJudge(op){
+  const st = S.stop, fe = st.free_end, through = st.walk_route==='through';
+  if (op==='inplace') return ['Re-orient + Separate', `The roof stays where it is (joined ends or no room behind): seats turned away, shield toward the road${through ? `, ${CFG.ROOF_CLEAR} m clear width kept for the walk route` : ''}.`];
+  if (op==='split') return ['Split + Separate', fe==='both_ends' ? 'Both ends free: gap over the exposed stretch, waiting segments away from the exhaust.' : fe==='upstream' || fe==='downstream' ? `One end free (${fe}): the roof grows that way, waiting gathers at the free end.` : 'No free end: the gap is cut out of the roof, total length shrinks.'];
+  if (op==='lateral'){ const r = Math.max(0, latRoom()); return ['Setback + Separate', r >= CFG.SETBACK ? `Rear room ${r.toFixed(1)} m: roof moves back ${CFG.SETBACK} m, low buffer in the freed strip.` : `Rear room only ${r.toFixed(1)} m (< ${CFG.SETBACK} m): misfit, consider Longitudinal or In-place.`]; }
+  return null;
+}
 function renderOpSet(){
   const el = $('#opset'), sc = scen(), o = sc.opt || (sc.opt = defaultOpt(S.op));
   const tot = r1(roofLen(sc.els)), base = r1(roofLen(baseEls())), d = r1(tot - base), n = shelters(sc.els).length;
+  const J = opJudge(S.op), jd = J ? `<div class="note"><b>Suggested: ${J[0]}.</b> ${esc(J[1])} First judgement only – you decide.</div>` : '';
   const lenNote = `<div class="note">Roof total <b>${tot} m</b> in ${n} segment(s) · baseline ${base} m · Δ ${d>0?'+':''}${d} m</div>`;
   if (S.op==='inplace'){
     // one short line per variant; the full rule stays in the tooltip
-    const VAR = {'R1':'Front screen and end wall, exposed end', 'R2':'Seats turned away from the road', 'R1+R2':'Screen, end wall and turned seats'};
+    const VAR = {'R1':'Front shield and end wall, exposed end', 'R2':'Seats turned away from the road', 'R1+R2':'Shield, end wall and turned seats'}, VNAME = {'R1':'R1: Shield', 'R2':'R2: Re-orient', 'R1+R2':'R1 + R2: Shield + Re-orient'};
     const full = `R1: solid front screen on ${CFG.R1_SHARE*100}% of the roof at the exposed end (door zones ±0.8 m kept clear) + end wall${S.stop.walk_route==='through'?' (shortened – walk route passes through the shelter)':''}. R2: seats on the exposed ${CFG.R1_SHARE*100}% turned away from the road (door zones skipped), ${CFG.SEAT.CLEAR} m clear in front. Changing the variant regenerates this prototype (Ctrl+Z to undo).`;
-    el.innerHTML = `<label>Variant<select id="optVar">${['R1','R2','R1+R2'].map(v => `<option ${o.variant===v?'selected':''}>${v}</option>`).join('')}</select></label>
+    el.innerHTML = `${jd}<label>Operations<select id="optVar">${['R1+R2','R2','R1'].map(v => `<option value="${v}" ${o.variant===v?'selected':''}>${VNAME[v]}</option>`).join('')}</select></label>
       <div class="opline" title="${esc(full)}">${VAR[o.variant] || ''}</div>`;
     $('#optVar').onchange = ev => { pushHist(); o.variant = ev.target.value; sc.els = generate('inplace', o); S.sel = null; changed(); };
   } else if (S.op==='split'){
-    el.innerHTML = `<label>Gap width (m)<input type="number" id="optGap" min="1" max="8" step="0.1" value="${o.gap}"></label>
+    el.innerHTML = `${jd}<label>Gap width (m)<input type="number" id="optGap" min="1" max="8" step="0.1" value="${o.gap}"></label>
       <label>Keep total roof length<input type="checkbox" id="optKeep" ${o.keep?'checked':''}></label>
-      <div class="btns"><button class="b" id="optAuto">Auto split by exposure</button></div>${lenNote}
+      <label>Separate: buffer + front shield<input type="checkbox" id="optSep" ${o.sep!==false?'checked':''}></label>
+      <div class="btns"><button class="b" id="optAuto" title="Regenerate from the baseline with these settings">Auto split by exposure</button></div>${lenNote}
       <div class="opline" title="Split tool: click in a roof to open a gap there. Keep length on = the parts grow outward at the free end(s) (free_end: ${esc(S.stop.free_end)}); off = the gap is cut out of the roof. Shelter tool: drag start → end to draw a new segment; drag segment ends to lengthen or shorten.">Click a roof to open a gap</div>`;
     $('#optGap').onchange = ev => { o.gap = r1(clamp(num(ev.target.value, CFG.GAP_W), 1, 8)); render(); };
     $('#optKeep').onchange = ev => { o.keep = ev.target.checked; render(); };
+    $('#optSep').onchange = ev => { pushHist(); o.sep = ev.target.checked; sc.els = generate('split', o); S.sel = null; changed(); };
     $('#optAuto').onclick = () => { pushHist(); sc.els = generate('split', o); S.sel = null; changed(); };
+  } else if (S.op==='lateral'){
+    el.innerHTML = `${jd}<label>Separate: low buffer<input type="checkbox" id="optSep" ${o.sep!==false?'checked':''}></label>`;
+    $('#optSep').onchange = ev => { pushHist(); o.sep = ev.target.checked; sc.els = generate('lateral', o); S.sel = null; changed(); };
   } else if (S.op==='baseline') el.innerHTML = lenNote;
   else el.innerHTML = '';
 }
@@ -1950,7 +2083,7 @@ const FIX_FIELDS = [
   ['grp', 'Stop zone (s along traffic, pole = 0)'], ['zone_s_from', 'Stop zone from'], ['zone_s_to', 'Stop zone to'], ['berths', 'Berths'],
   ['grp', 'Kerb / bay (click the kerb in the plan to drag it)'], ['kerb_off_m', 'Stop point behind kerb'], ['bay_s_from', 'Bay from'], ['bay_s_to', 'Bay to'], ['bay_depth_m', 'Bay depth'], ['taper_m', 'Bay taper'], ['sat_rot_deg', 'Photo rotation °'], ['pole_ds_m', 'Pole from data point'],
   ['grp', 'Shelter & rear'], ['shelter_s_from', 'Shelter from'], ['shelter_s_to', 'Shelter to'], ['shelter_front_m', 'Roof front behind kerb'], ['rear_depth_m', 'Rear depth'],
-  ['shelter_depth_m', 'Roof depth'], ['shelter_col_rows', 'Column rows'], ['shelter_col_at_m', 'Column line from front'], ['shelter_cols', 'Columns per row'], ['shelter_col_shape', 'Column section'],
+  ['shelter_depth_m', 'Roof depth'], ['shelter_col_rows', 'Column rows'], ['shelter_col_at_m', 'Column line from front'], ['shelter_cols', 'Columns per row'], ['shelter_col_shape', 'Column section'], ['shelter_col_size_m', 'Column size'], ['shelter_col_inset_m', 'End column inset'],
   ['grp', 'Bollards (row on the roof front – drag it along)'], ['bollards_30m', 'Bollards'], ['bollard_sp_m', 'Bollard spacing'],
 ];
 // system fixes (data_fixes.json) under the browser's own edits, field by field; a system fix with a newer _rev
@@ -1972,6 +2105,8 @@ function renderSiteCon(){
     k==='bollards_30m' ? `<span>${lab}</span><input type="number" min="0" max="60" step="1" data-fix="${k}" value="${bollardCount(S.stop)}" class="${k in fx ? 'fix' : ''}" title="${k in fx ? 'edited – data: ' + esc(S.data[k]) : 'from data (bollards within 30 m)'}"><span class="sub"></span>` :
     k==='bollard_sp_m' ? (bollardCount(S.stop) > 1 ? `<span>${lab}</span><input type="number" min="0" step="0.1" data-fix="${k}" value="${num(S.stop[k]) > 0 ? r1(num(S.stop[k])) : ''}" placeholder="auto ${r1(bollardSpacing(S.stop, S.site.noShelter ? S.site.z1 - S.site.z0 : S.site.sh1 - S.site.sh0, bollardCount(S.stop)))}" class="${num(fx[k]) > 0 ? 'fix' : ''}" title="Centre to centre (LTA drawings: 3 m) – empty = spread over the roof; a longer row runs past the roof ends"><span class="sub">m</span>` : '') :
     k==='shelter_depth_m' && !bsh ? '' :
+    k==='shelter_col_size_m' ? (bsh ? `<span>${lab}</span><input type="number" min="0.08" max="1" step="0.01" data-fix="${k}" value="${r2(colSize(bsh))}" class="${k in fx ? 'fix' : ''}" title="Square column width or round column Ø, centred on the column point"><span class="sub">m</span>` : '') :
+    k==='shelter_col_inset_m' ? (bsh ? `<span>${lab}</span><input type="number" min="0" step="0.05" data-fix="${k}" value="${r2(colInset(bsh))}" class="${k in fx ? 'fix' : ''}" title="Roof end to the centre of the end column (both ends)"><span class="sub">m</span>` : '') :
     k==='shelter_col_at_m' ? (bsh && bsh.colRows==='centre' ? `<span>${lab}</span><input type="number" min="0.3" step="0.1" data-fix="${k}" value="${r1(colLine(bsh) - shelterY(bsh)[0])}" class="${k in fx ? 'fix' : ''}" title="Centre column line (= ridge of a gable roof), metres behind the roof front edge"><span class="sub">m</span>` : '') :
     k==='shelter_col_rows' ? (bsh ? `<span>${lab}</span><select data-colrows class="${k in fx ? 'fix' : ''}">${Object.entries(COL_ROWS).map(([v, t]) => `<option value="${v}" ${(bsh.colRows || 'back')===v ? 'selected' : ''}>${t}</option>`).join('')}</select><span class="sub"></span>` : '') :
     k==='shelter_col_shape' ? (bsh ? `<span>${lab}</span><select data-colshape class="${k in fx ? 'fix' : ''}"><option value="square">square</option><option value="round" ${bsh.colShape==='round' ? 'selected' : ''}>round</option></select><span class="sub"></span>` : '') :
@@ -2001,18 +2136,36 @@ function applyFix(patch){
   delete fx.confirmed;            // a changed site needs a new confirmation
   setFix(id, fx); reloadSite();
 }
+// baseline elements the data does not rebuild: everything except the roof, its derived waiting area / auto passengers, zones and the data bollard row
+const handAdded = e => !['shelter', 'waiting', 'zone'].includes(e.type) && !(e.type==='bollard' && e.row==='base') && !(e.type==='pax' && e.auto===true);
+// unsaved prototypes are rebuilt from the new baseline; an option opened from Archive stays
+function dropStaleOps(){ for (const k of Object.keys(S.scen)) if (k!=='baseline' && !S.saved[k] && !(S.arcEdit && S.arcEdit.op===k)) delete S.scen[k]; }
 // rebuild the site and the baseline from the (fixed) data, then bring the operations onto the new baseline
 function reloadSite(){
   const old = S.site;
   S.stop = {...S.data, ...fixOf(S.data.stop_idx)}; S.site = siteOf(S.stop);
   // the bicycle zone and a crossing zone set by hand stay where they were placed (a deleted default stays deleted)
-  const prev = S.scen.baseline;
-  S.scen.baseline = prev ? {els: baseZones(generateEls('baseline').concat(manualZones(prev.els))), opt:{bike:1}} : {els: generate('baseline', {}), opt:{bike:1}};
-  if (S.saved.baseline) S.saved.baseline = clone(S.scen.baseline);
+  // components added by hand (seats, screens, greenery, extra bollards, a moved display, passengers) are kept; a pure roof shift carries them along
+  const prev = S.scen.baseline, gen = generateEls('baseline');
+  // a display still where the roof put it is rebuilt with the roof; one moved or drawn by hand is kept and replaces that roof's default
+  const same = (a, b) => ['s0', 's1', 'y0', 'y1'].every(k => Math.abs(a[k] - b[k]) < 0.05), autoInfo = prev ? shelters(prev.els).map(infoFor) : [];
+  let hand = prev ? clone(prev.els.filter(e => handAdded(e) && !(e.type==='info' && autoInfo.some(a => same(a, e))))) : [];
+  const sh = old && !old.noShelter && !S.site.noShelter ? [S.site.sh0 - old.sh0, S.site.sh1 - old.sh1, S.site.shOff - old.shOff] : null;
+  if (sh && Math.abs(sh[0] - sh[1]) < 0.05 && (sh[0] || sh[2])) for (const e of hand){
+    for (const k of ['s', 's0', 's1']) if (k in e) e[k] = r2(e[k] + sh[0]);
+    for (const k of ['y', 'y0', 'y1']) if (k in e) e[k] = r2(e[k] + sh[2]);
+  }
+  const onRoof = (i, sh) => (i.s0 + i.s1)/2 >= sh.s0 && (i.s0 + i.s1)/2 <= sh.s1, gsh = shelters(gen);
+  const keepGen = e => e.type==='pax' && !e.auto ? !hand.some(h => h.type==='pax')   // no-shelter stops: the kept passengers replace the default four
+    : e.type!=='info' || !hand.some(h => h.type==='info' && gsh.some(sh => onRoof(h, sh) && onRoof(e, sh)));
+  S.scen.baseline = prev ? {els: syncDerived(baseZones(gen.filter(keepGen).concat(hand, manualZones(prev.els)))), opt:{bike:1}} : {els: generate('baseline', {}), opt:{bike:1}};
+  if (!S.bus.manual) delete S.bus.fronts;   // the first bus follows the roof's downstream edge until it is moved by hand
+  if (S.saved.baseline){ S.saved.baseline = clone(S.scen.baseline); persist(); }   // one baseline per stop: every archive option opens on this one
   const moved = old && !S.site.noShelter && (old.sh0 !== S.site.sh0 || old.sh1 !== S.site.sh1 || old.shOff !== S.site.shOff);
   if (moved) syncOps(old);
-  else for (const k of Object.keys(S.scen)) if (k!=='baseline' && !S.saved[k]) delete S.scen[k];
+  else dropStaleOps();
   ensureScen(S.op); S.sel = null;
+  EST[S.data.stop_idx] = estimateStop(S.data);   // Find stop follows the adjusted baseline
   syncControls(); refreshField(); render(); renderResults();
 }
 // baseline roof moved: a pure shift moves every element of In-place / Split / Setback with it (edits kept);
@@ -2070,8 +2223,8 @@ function renderChecks(){
     if (zs.bikeCrossing > 0.05) out.push(['amber', `${r1(zs.bikeCrossing)} m² of bicycle zone in the crossing zone`]);
     if (zs.bikeBoarding > 0.05) out.push(['amber', `${r1(zs.bikeBoarding)} m² of bicycle zone in the boarding zone`]);
     if (miss.length) out.push(['amber', `Zones missing: ${miss.join(', ')}`]);
-    if (zs.crMin != null) out.push(zs.crMin < CFG.WALK - 0.01 ? ['amber', `Crossing zone narrows to ${r1(zs.crMin)} m (< ${CFG.WALK} m)`] : ['ok', `Crossing zone ≥ ${CFG.WALK} m clear`]);
-    if (zs.crBlocked > 0.05) out.push(['amber', `${r1(zs.crBlocked)} m² of waiting or filtering zone in the crossing zone`]);
+    if (zs.through && zs.roofClear != null) out.push(zs.roofClear < CFG.ROOF_CLEAR - 0.01 ? ['amber', `Clear width under the roof narrows to ${r1(zs.roofClear)} m (< ${CFG.ROOF_CLEAR} m, walk route passes through)`] : ['ok', `Clear width under the roof ≥ ${CFG.ROOF_CLEAR} m`]);
+    if (zs.crFree != null) out.push(zs.crFree < CFG.CROSS_FREE - 0.01 ? ['amber', `Crossing zone clear width narrows to ${r1(zs.crFree)} m (< ${CFG.CROSS_FREE} m past columns, seats, screens)`] : ['ok', `Crossing zone clear width ≥ ${CFG.CROSS_FREE} m`]);
     if (zs.bdKerb != null && zs.bdKerb > 0.3) out.push(['amber', `Boarding zone ${r1(zs.bdKerb)} m off the kerb`]);
     const fz = zonesOf(els, 'filter');
     if (S.op!=='baseline'){
@@ -2104,10 +2257,12 @@ function renderInspector(){
     `<label>Column rows<select id="colRows">${Object.entries(COL_ROWS).map(([v, t]) => `<option value="${v}" ${(e.colRows || 'back')===v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`,
     ...(e.colRows==='centre' ? [`<label>Column line from front<input type="number" min="0.3" step="0.1" id="colAt" value="${r1(colLine(e) - shelterY(e)[0])}"></label>`] : []),
     `<label>Columns per row${e.cols ? '' : ' (auto)'}<input type="number" min="2" max="40" step="1" id="colN" value="${columnsOf(e).length / (e.colRows==='both' ? 2 : 1)}"></label>`,
-    `<label>Column section<select id="colShape"><option value="square">square</option><option value="round" ${e.colShape==='round' ? 'selected' : ''}>round</option></select></label>`);
+    `<label>Column section<select id="colShape"><option value="square">square</option><option value="round" ${e.colShape==='round' ? 'selected' : ''}>round</option></select></label>`,
+    `<label>Column ${e.colShape==='round' ? 'Ø' : 'width'} (m)<input type="number" min="0.08" max="1" step="0.01" id="colSize" value="${r2(colSize(e))}"></label>`,
+    `<label>End column inset (m)<input type="number" min="0" step="0.05" id="colInset" value="${r2(colInset(e))}" title="Roof end to the centre of the end column"></label>`);
   if (e.type==='planter') cells.push(ro('Length', r1(e.s1-e.s0)+' m'), ro('Depth', r1(e.y1-e.y0)+' m'), ro('Height', '≤ 1.0 m'));
   if (e.type==='screen') cells.push(ro('Length', len+' m'));
-  if (e.type==='info') cells.push(ro('Width', len+' m'), ro('Posts', 2));
+  if (e.type==='info') cells.push(ro('Width', len+' m'));
   if (e.type==='seat') cells.push(ro('Length', r1(e.s1-e.s0)+' m'), ro('Depth', CFG.SEAT.D+' m'));
   if (e.type==='tree') cells.push(ro('Crown Ø', r1(2*e.r)+' m'));
   // a bollard edits its whole row: count and centre-to-centre spacing (row centre kept)
@@ -2126,7 +2281,7 @@ function renderInspector(){
   if (e.type==='screen') notes.push('Solid = double line, perforated = dashed. GH builds the panel on the centre line.');
   if (e.type==='shelter') notes.push(`Columns: count and section as seen on site; the cross is the centre exported as the DXF point BS_COLUMN. Empty count = auto (≤ ${CFG.COL_SPAN} m spacing).`);
   if (e.type==='seat') notes.push('Thick edge = backrest, dashed = clear space. Drag the round handle in front to turn (15° steps), or press R / Shift+R. Bench size assumed.');
-  if (e.type==='info') notes.push('The two end points are the display posts.');
+  if (e.type==='info') notes.push('Hangs from the roof: it does not block the view of the bus or the walking path.');
   if (e.type==='planter') notes.push('Keep ≤ 1 m high to keep sightlines to the bus.');
   const tname = e.type==='zone' ? ZK[e.zone].name : TYPE_NAME[e.type] || e.type;
   let html = `<div class="ttl"><b>${tname} ${e.type==='zone' ? String(zonesOf(els, e.zone).indexOf(e) + 1).padStart(2, '0') : no}</b>${e.note ? `<div class="sub">${esc(e.note)}</div>` : ''}</div><div class="grid">${cells.join('')}</div>` + notes.map(n => `<div class="note">${n}</div>`).join('');
@@ -2173,6 +2328,11 @@ function renderInspector(){
   const sd = $('#shDepth'), crw = $('#colRows');
   if (sd) sd.onchange = () => { const v = r1(clamp(num(sd.value, CFG.SH_DEPTH), 1, 8)); if (S.op==='baseline' && shelters(els).length===1) return applyFix({shelter_depth_m: v}); pushHist(); if (v === CFG.SH_DEPTH) delete e.depth; else e.depth = v; changed(); };
   if (crw) crw.onchange = () => { if (S.op==='baseline' && shelters(els).length===1) return applyFix({shelter_col_rows: crw.value}); pushHist(); if (crw.value==='back') delete e.colRows; else e.colRows = crw.value; changed(); };
+  // column size and end inset: baseline = data fix, elsewhere this roof
+  const setCol = (fix, key, v) => { if (S.op==='baseline' && shelters(els).length===1) return applyFix({[fix]: v}); pushHist(); e[key] = v; changed(); };
+  const csz = $('#colSize'), cin = $('#colInset');
+  if (csz) csz.onchange = () => setCol('shelter_col_size_m', 'colSize', r2(clamp(num(csz.value, CFG.COL), 0.08, 1)));
+  if (cin) cin.onchange = () => setCol('shelter_col_inset_m', 'colInset', r2(Math.max(0, num(cin.value, 0.3))));
   const ca = $('#colAt');
   if (ca) ca.onchange = () => { const v = r1(Math.max(0.3, num(ca.value))); if (S.op==='baseline' && shelters(els).length===1) return applyFix({shelter_col_at_m: v}); pushHist(); e.colAt = v; changed(); };
   const cn = $('#colN'), cs = $('#colShape');
@@ -2206,6 +2366,11 @@ function renderZonesPanel(){
   }).join('');
   for (const c of document.querySelectorAll('[data-zlist]')) c.innerHTML = html;
   // the zoning row of the toolbar: pick a zone, lock / edit it
+  // display only: exposure and the view still count the bus and the pole
+  for (const [id, on, what] of [['#busVis', S.busOn !== false, 'buses and their plume'], ['#poleVis', S.poleOn !== false, 'pole']]){
+    const b = $(id); b.classList.toggle('locked', !on); b.setAttribute('aria-pressed', on); b.title = `${on ? 'Shown' : 'Hidden'} – click to ${on ? 'hide' : 'show'} the ${what} (display only: exposure and the view still count them)`;
+    b.querySelector('.zl').innerHTML = on ? ICON.eye : ICON.eyeOff;
+  }
   $('[data-zchips]').innerHTML = ZONE_DEF.filter(z => !(isB && z.key==='filter')).map((z, i) => {
     const lk = !!S.zlock[z.key];
     return `<button class="zchip${S.zact===z.key ? ' on' : ''}${lk ? ' locked' : ''}" style="--zc:${z.col}" data-z="${z.key}" title="${esc(z.desc)} (key ${ZONE_DEF.indexOf(z)+1})"><i></i>${z.name}<span class="zl" data-zlock="${z.key}" title="${lk ? 'Locked – click to edit' : 'Editable – click to lock'} (L)">${lk ? ICON.lock : ICON.edit}</span></button>`;
@@ -2245,7 +2410,7 @@ function setLayer(l){
 function pickZone(k){
   S.zact = k; S.zonesOn = true; S.zhide[k] = false; S.layer = 'zone';
   if (S.tool!=='zone') S.tool = 'select';
-  const r = (S.op!=='baseline' || BASE_EDIT.includes(k)) && !S.zlock[k] && zonesOf(scen().els, k)[0];   // baseline zones follow the roof: shown, not edited (bicycle and crossing excepted)
+  const r = (S.op!=='baseline' || BASE_EDIT.includes(k)) && !S.zlock[k] && zonesOf(scen().els, k)[0];   // baseline: canopy edge follows the roof; bicycle, crossing, boarding and waiting can be set by hand
   S.sel = r ? r.id : null; savePrefs(); render();
 }
 function toggleZoneLock(k){
@@ -2291,7 +2456,8 @@ function ensureScen(op){
 function baseEls(){ ensureScen('baseline'); return (S.saved.baseline || S.scen.baseline).els; }
 function defaultOpt(op){
   if (op==='inplace') return {variant: S.stop.demo_variant || 'R1+R2'};
-  if (op==='split') return {gap: CFG.GAP_W, keep: true};
+  if (op==='split') return {gap: CFG.GAP_W, keep: true, sep: true};
+  if (op==='lateral') return {sep: true};
   if (op==='baseline') return {bike: 1};
   return {};
 }
@@ -2306,26 +2472,36 @@ function generateEls(op, opt){
   opt.base = roofSig(base);     // baseline roof this operation was built from (checked before export)
   if (op==='inplace') return syncDerived(makeInplace(base, F, opt.variant, st));
   if (op==='split') return syncDerived(makeSplit(base, F, st, opt));
-  if (op==='lateral'){ const r = makeLateral(base, F, site); S._latInfo = r; return syncDerived(r.els); }
+  if (op==='lateral'){ const r = makeLateral(base, F, site, opt); S._latInfo = r; return syncDerived(r.els); }
 }
 function loadStop(st){
+  S.arcEdit = null;   // openArchived sets it again after loading
   S.data = st; S.stop = {...st, ...fixOf(st.stop_idx)}; S.site = siteOf(S.stop); FIND.sel = st.stop_idx; S.zoom = 1; S.zc = null; S.scen = {}; S.saved = {}; S.hist = {}; S.fut = {}; S.sel = null; S.op = 'baseline';
   const saved = store.get('bse.v2.' + st.stop_idx);
-  S.wind = {from:CFG.WIND.ne, U:2, src:'default (NE monsoon)'}; S.bus = {type:(st.bus_types || ['SD'])[0], n:1};   // never carried over from the previous stop
+  S.wind = {from:CFG.WIND.ne, U:2, src:'default (NE monsoon)'}; S.bus = {type:(st.bus_types || ['SD'])[0], n:1, aligned:true};   // never carried over from the previous stop
   if (saved){ S.saved = saved.saved || {}; for (const k in S.saved) S.saved[k].els = k==='baseline' ? baseZones(migratePax(S.saved[k].els)) : withZones(migratePax(S.saved[k].els)); if (saved.wind) S.wind = {...saved.wind, src: 'saved for this stop' + (saved.wind.src && !/default|saved/.test(saved.wind.src) ? ' (' + saved.wind.src + ')' : '')}; if (saved.bus) S.bus = saved.bus; }
   // baselines saved before the bicycle zone existed get its default once (a deleted one stays deleted)
   const sb = S.saved.baseline;
   if (sb && !(sb.opt && sb.opt.bike)){ sb.els = baseZones(sb.els.concat(zonesOf(sb.els, 'bicycle').length ? [] : bikeDefault(sb.els))); sb.opt = {...(sb.opt || {}), bike: 1}; }
+  // a saved baseline left behind by a later site fix (its roof is not where the site says): rebuild it, hand-added components kept
+  if (sb && !S.site.noShelter){
+    const r = shelters(sb.els);
+    if (r.length===1 && (Math.abs(r[0].s0 - S.site.sh0) > 0.06 || Math.abs(r[0].s1 - S.site.sh1) > 0.06 || Math.abs((r[0].off||0) - S.site.shOff) > 0.06)){
+      sb.els = syncDerived(baseZones(generateEls('baseline').concat(clone(sb.els.filter(handAdded)), manualZones(sb.els))));
+      persist();
+    }
+  }
+  if (saved && saved.bus) alignBus(S.bus);
   ensureScen('baseline');
   if (!(saved && saved.wind)) S.wind = worstMonsoon();
   syncControls();
   refreshField(); render(); renderResults();
 }
-// baseline waiting-area exposure for a wind direction (current speed and buses)
+// baseline Waiting zone exposure for a wind direction (current speed and buses)
 function windExposure(w){
   const keep = S.wind.from; S.wind.from = w;
-  const els = baseEls(), e = exposure(computeField(els), els);
-  S.wind.from = keep; return e.wa;
+  const els = baseEls(), v = zoneStats(els, computeField(els)).waitExp ?? 0;
+  S.wind.from = keep; return v;
 }
 // default wind = whichever monsoon hits this stop's baseline harder
 function worstMonsoon(){
@@ -2353,11 +2529,11 @@ function refreshField(){
 }
 // baseline zones are read from the roof and the stop zone every time the baseline changes
 // (kept: the bicycle zone and a crossing zone once moved by hand – both placed from the satellite)
-const BASE_EDIT = ['bicycle', 'crossing', 'boarding'];
+const BASE_EDIT = ['bicycle', 'crossing', 'boarding', 'waiting'];
 // back to the automatic zone (drops the hand-set ones of this kind)
 function zoneAuto(k){ pushHist(); scen().els = scen().els.filter(x => !(x.type==='zone' && x.zone===k)); S.sel = null; changed(); }
 function baseZones(els){ const c = els.filter(e => e.type!=='zone'), bz = manualZones(els); return c.concat(zonesFor(c, bz), bz); }
-function changed(){ scen().els = syncDerived(scen().els); if (S.op==='baseline') scen().els = baseZones(scen().els); S.field = computeField(scen().els); if (S.op==='baseline') S.fieldBase = S.field; render(); }
+function changed(){ scen().els = syncDerived(scen().els); if (S.op==='baseline') scen().els = syncDerived(baseZones(scen().els)); S.field = computeField(scen().els); if (S.op==='baseline') S.fieldBase = S.field; render(); }
 function pushHist(){ (S.hist[S.op] ||= []).push(clone(scen().els)); if (S.hist[S.op].length > 80) S.hist[S.op].shift(); S.fut[S.op] = []; }
 function undo(){ const hs = S.hist[S.op]; if (!hs||!hs.length) return; (S.fut[S.op] ||= []).push(clone(scen().els)); scen().els = hs.pop(); S.sel=null; changed(); }
 function redo(){ const fs = S.fut[S.op]; if (!fs||!fs.length) return; (S.hist[S.op] ||= []).push(clone(scen().els)); scen().els = fs.pop(); S.sel=null; changed(); }
@@ -2365,8 +2541,9 @@ function save(){
   S.saved[S.op] = clone(scen());
   const ok = store.set(key(), {saved:S.saved, wind:S.wind, bus:S.bus});
   toast(ok ? `Saved · ${OPS.find(o=>o.key===S.op).name}` : 'Saved for this session (browser storage unavailable)');
-  if (S.op==='baseline') EST[S.stop.stop_idx] = estimateStop(S.data);
+  if (S.op==='baseline'){ EST[S.stop.stop_idx] = estimateStop(S.data); dropStaleOps(); }
   render();
+  if (arcEditing()) updateArchived({});   // opened from Archive: the saved version goes back into that option
 }
 function resetOp(){
   if (!confirm('Regenerate this prototype from the baseline? Unsaved edits will be lost.')) return;
@@ -2423,11 +2600,11 @@ svg.addEventListener('pointermove', ev => {
     const f = drag.f0.slice(), k = drag.bus, L = busModel().L;
     f[k] = snap(f[k] + ds);
     if (k > 0) f[k] = Math.min(f[k], f[k-1] - L - CFG.BUS_MIN_GAP);
-    drag.pushed = true; S.bus.fronts = spaceBuses(f);
+    drag.pushed = true; S.bus.manual = true; S.bus.fronts = spaceBuses(f);
     if (!raf) raf = requestAnimationFrame(() => { raf = 0; refreshField(); render(); });
     return;
   }
-  if (!drag.pushed){ (S.hist[S.op] ||= []).push(clone(scen().els.map(x => x.id===e.id ? o : x))); S.fut[S.op] = []; drag.pushed = true; }
+  if (!drag.pushed){ (S.hist[S.op] ||= []).push(clone(scen().els.map(x => x.id===e.id ? o : x))); S.fut[S.op] = []; drag.pushed = true; takeOver(e); }   // take over at the first move: a mid-drag rebuild would drop an auto passenger
   if (isMan(e)) e.man = true;   // else the baseline rebuild would replace it mid-drag
   if (drag.row){ for (const [x, s0, y0] of drag.row){ x.s = snap(s0+ds); if (!x.edge) x.y = snap(y0+dy); } schedule(); return; }
   const k = drag.h;
@@ -2547,7 +2724,7 @@ function addAt(m, ev){
     // drag a rectangle into the active zone; a plain click gives 3 × 1.5 m
     const k = S.zact;
     if (S.zlock[k]){ toast(`${ZK[k].name} is locked – click its lock to edit`); return; }
-    if (S.op==='baseline' && !BASE_EDIT.includes(k)){ toast('Baseline zones follow the roof and the stop zone – only the boarding, crossing and bicycle zones are drawn here'); return; }
+    if (S.op==='baseline' && !BASE_EDIT.includes(k)){ toast('The canopy edge follows the roof – in the baseline draw the boarding, crossing, waiting or bicycle zone'); return; }
     S.zhide[k] = false;
     pushHist();
     const e = {id:uid(), type:'zone', zone:k, s0:s, s1:s, y0:y, y1:y, note:'', ...(S.op==='baseline' && MAN_ZONES.includes(k) ? {man:true} : {})};
@@ -2680,7 +2857,8 @@ function dxf(o={}){
     if (e.colRows==='centre') ln('BS_ROOF_RIDGE', [e.s0, colLine(e)], [e.s1, colLine(e)]);   // centre columns carry the ridge (gable roof)
     for (const c of columnsOf(e)){
       pt('BS_COLUMN', c.s, c.y);   // centre point (GH g02 input); the outline records the section seen on site
-      if (e.colShape==='round') ci('BS_COLUMN_OUTLINE', c.s, c.y, CFG.COL/2); else rect('BS_COLUMN_OUTLINE', c.s-CFG.COL/2, c.y-CFG.COL/2, c.s+CFG.COL/2, c.y+CFG.COL/2);
+      const d = colSize(e);
+      if (e.colShape==='round') ci('BS_COLUMN_OUTLINE', c.s, c.y, d/2); else rect('BS_COLUMN_OUTLINE', c.s-d/2, c.y-d/2, c.s+d/2, c.y+d/2);
     }
   });
   for (const e of els){
@@ -2732,7 +2910,7 @@ function scenarioJson(){
       return [k, {els: v.els, opt: v.opt, exposure: exposure(F, v.els),
         zones: {area_m2: Object.fromEntries(Object.entries(z.area).map(([a, b]) => [a, r1(b)])), waiting_zone_exposure: z.waitExp == null ? null : r1(z.waitExp),
                 waiting_min_from_kerb_m: z.waitKerb == null ? null : r2(z.waitKerb), waiting_under_canopy: z.waitCanopy == null ? null : r2(z.waitCanopy),
-                waiting_shielded_by_filter: z.shield == null ? null : r2(z.shield), crossing_min_width_m: z.crMin == null ? null : r2(z.crMin)}}]; }))};
+                waiting_shielded_by_filter: z.shield == null ? null : r2(z.shield), crossing_min_width_m: z.crMin == null ? null : r2(z.crMin), crossing_free_width_m: z.crFree == null ? null : r2(z.crFree), roof_clear_width_m: z.roofClear == null ? null : r2(z.roofClear), seats: z.seats}}]; }))};
   if (out.frame === 'svy21') out.transform_note = 'element coordinates are local (s, y); apply the same transform as the DXF using stop.x3414 / y3414 and site.bearing';
   return JSON.stringify(out, null, 2);
 }
@@ -2789,7 +2967,7 @@ function satHref(id){
   if (!satUrl[id]){ const bin = atob(SAT[id].src.split(',')[1]), u8 = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u8[i] = bin.charCodeAt(i); satUrl[id] = URL.createObjectURL(new Blob([u8], {type:'image/jpeg'})); }
   return satUrl[id];
 }
-function savePrefs(){ store.set('bsw.prefs', {dims:S.dims, sat:S.satOn, satA:S.satA, zonesOn:S.zonesOn, compsOn:S.compsOn !== false, zlock:S.zlock, zhide:S.zhide, zlabels:S.zlabels}); }
+function savePrefs(){ store.set('bsw.prefs', {dims:S.dims, sat:S.satOn, satA:S.satA, zonesOn:S.zonesOn, compsOn:S.compsOn !== false, zlock:S.zlock, zhide:S.zhide, zlabels:S.zlabels, busOn:S.busOn !== false, poleOn:S.poleOn !== false}); }
 // Street View: outdoor panoramas matched in week 9 (at stop / upstream / downstream). Each view looks at the middle
 // of the current baseline roof (same rule as the week-10 workbench); without a matched panorama Google picks the
 // one nearest the road edge in front of the roof.
@@ -2876,7 +3054,7 @@ function renderBus(){
   for (const inp of $('#busRows').querySelectorAll('[data-bf]')) inp.onchange = () => {
     const k = +inp.dataset.bf, f = S.bus.fronts.slice(), L = busModel().L;
     f[k] = num(inp.value); if (k > 0) f[k] = Math.min(f[k], f[k-1] - L - CFG.BUS_MIN_GAP);
-    busChanged(spaceBuses(f));
+    S.bus.manual = true; busChanged(spaceBuses(f));
   };
   for (const s of $('#busRows').querySelectorAll('[data-bst]')) s.onchange = () => { S.bus.state[+s.dataset.bst] = s.value; busChanged(); };
 }
@@ -2884,7 +3062,7 @@ function busChanged(fronts){ if (fronts) S.bus.fronts = fronts; busState(); pers
 $('#busType').onchange = e => { S.bus.type = e.target.value; S.bus.model = CFG.BUS_MODELS[S.bus.type][0].key; busChanged(S.bus.fronts.slice(0, 1)); };
 $('#busModel').onchange = e => { S.bus.model = e.target.value; busChanged(S.bus.fronts.slice(0, 1)); };
 $('#busN').onchange = e => { S.bus.n = +e.target.value; busChanged(); };
-$('#busBerth').onclick = () => { S.bus.state = []; busChanged(defaultFronts(S.bus.n)); };
+$('#busBerth').onclick = () => { S.bus.state = []; S.bus.manual = false; busChanged(defaultFronts(S.bus.n)); };
 $('#busDepart').onclick = () => { const f = defaultFronts(S.bus.n); f[0] = departFront(); S.bus.state = ['depart']; busChanged(f); };
 $('#importHandoff').onclick = () => $('#fileHandoff').click();
 $('#fileHandoff').onchange = async e => {
@@ -2907,6 +3085,9 @@ for (const b of document.querySelectorAll('.tool[data-tool]')) b.onclick = () =>
 $('#undo').onclick = undo; $('#redo').onclick = redo; $('#del').onclick = del; $('#copy').onclick = copySel; $('#paste').onclick = pasteClip; $('#save').onclick = save; $('#reset').onclick = resetOp;
 function toggleDims(){ S.dims = !S.dims; savePrefs(); render(); if (S.page==='design') dSchedule(); }
 $('#dimsT').onclick = toggleDims;
+$('#textT').onclick = () => { S.zlabels = S.zlabels === false; savePrefs(); render(); };
+$('#busVis').onclick = () => { S.busOn = S.busOn === false; if (!S.busOn && String(S.sel).startsWith('bus:')) S.sel = null; savePrefs(); render(); };
+$('#poleVis').onclick = () => { S.poleOn = S.poleOn === false; savePrefs(); render(); };
 $('#compsT').onclick = () => {
   S.compsOn = S.compsOn === false;
   const e = scen().els.find(x => x.id===S.sel); if (!S.compsOn && e && e.type!=='zone') S.sel = null;
@@ -2962,7 +3143,7 @@ const LG_COMP = [
   ['<svg width="26" height="12"><rect width="26" height="12" fill="rgba(29,99,184,0.16)" stroke="#123f7a" stroke-dasharray="2 2"/></svg>', 'roof link'],
   ['<svg width="26" height="12"><path d="M1 4.5h24M1 7.5h24" stroke="#123f7a" stroke-width="1.3"/></svg>', 'solid screen / end wall'],
   ['<svg width="26" height="12"><path d="M1 6h24" stroke="#123f7a" stroke-width="2" stroke-dasharray="5 3"/></svg>', 'perforated screen'],
-  ['<svg width="26" height="12"><path d="M4 6h18" stroke="#6a3d9a" stroke-width="3"/><circle cx="4" cy="6" r="1.6" fill="#6a3d9a"/><circle cx="22" cy="6" r="1.6" fill="#6a3d9a"/></svg>', 'arrival display + posts'],
+  ['<svg width="26" height="12"><path d="M4 6h18" stroke="#6a3d9a" stroke-width="3"/><circle cx="4" cy="6" r="1.6" fill="#6a3d9a"/><circle cx="22" cy="6" r="1.6" fill="#6a3d9a"/></svg>', 'arrival display (hung from the roof)'],
   ['<svg width="26" height="14"><rect x="1" y="1" width="24" height="5" fill="#d8b98f" stroke="#7a5230"/><path d="M1 1h24" stroke="#7a5230" stroke-width="2.5"/><rect x="1" y="6" width="24" height="7" fill="none" stroke="#7a5230" stroke-dasharray="2 2"/></svg>', 'seat (thick = backrest) + clear space'],
   ['<svg width="12" height="12"><circle cx="6" cy="6" r="3" fill="#9a9a9a"/></svg>', 'bollard'],
   ['<svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#a5d16f" stroke="#3b7d23"/></svg>', 'tree'],
@@ -3012,16 +3193,16 @@ for (const b of document.querySelectorAll('.nav')) b.onclick = () => goPage(b.da
 $('#next').onclick = () => goPage(NEXT[S.page] || 'find');
 
 // ---------- 1 · find stop: estimated exposure map ----------
-// Estimate = schematic waiting-area exposure index of each stop's reference baseline (the saved baseline if there is one,
-// else the data baseline) under that stop's own worst wind direction (10° sweep, 2 m/s, one bus of the first type seen
-// at the stop, at the berth). Relative screening only – the same schematic plume as the editor, not a concentration.
-const GRADES = [      // provisional thresholds on the index (≈ quartiles of the 85 stops, range 3–21) – edit here
-  {name:'Low', max:8, col:'#2f9e44'},
-  {name:'Moderate', max:12, col:'#e0a800'},
-  {name:'High', max:16, col:'#f76707'},
+// Estimate = schematic Waiting zone exposure index of each stop's reference baseline (the saved baseline if there is one,
+// else the data baseline) under whichever monsoon is worse for that stop (NE or SW direction, 2 m/s, one bus of the first type seen
+// at the stop, front on the roof's downstream edge). Relative screening only – the same schematic plume as the editor, not a concentration.
+const GRADES = [      // provisional thresholds on the index (85 data baselines under the worst monsoon, range 0–15.6; about a quarter are near 0, so round steps rather than quartiles) – edit here
+  {name:'Low', max:2, col:'#2f9e44'},
+  {name:'Moderate', max:6, col:'#e0a800'},
+  {name:'High', max:10, col:'#f76707'},
   {name:'Very high', max:Infinity, col:'#c92a2a'},
 ];
-const EST_CFG = {step:10, U:2};
+const EST_CFG = {U:2};
 const gradeOf = v => v == null ? -1 : GRADES.findIndex(g => v < g.max);
 const EST = {};       // stop_idx -> {v, from, src}
 const FIND = {grades:new Set(GRADES.map((g, i) => i)), sel:null};
@@ -3033,10 +3214,10 @@ function estimateStop(st){
     S.stop = {...st, ...fixOf(st.stop_idx)}; S.site = siteOf(S.stop);
     S.bus = {type:(st.bus_types || ['SD'])[0], n:1}; S.wind = {from:0, U:EST_CFG.U};
     const sv = store.get('bse.v2.' + st.stop_idx), saved = sv && sv.saved && sv.saved.baseline;
-    const els = saved ? saved.els : syncDerived(makeBaseline(S.stop, S.site)), wa = els.some(e => e.type==='waiting');
+    const els = saved ? baseZones(saved.els) : generate('baseline', {});
     let best = {v:-1, from:0};
-    for (let w = 0; w < 360; w += EST_CFG.step){
-      S.wind.from = w; const e = exposure(computeField(els), els), v = wa ? e.wa : e.pax;
+    for (const w of [CFG.WIND.ne, CFG.WIND.sw]){
+      S.wind.from = w; const v = zoneStats(els, computeField(els)).waitExp ?? 0;
       if (v > best.v) best = {v, from:w};
     }
     return {v:r1(best.v), from:best.from, src: saved ? 'saved baseline' : 'data baseline'};
@@ -3048,7 +3229,7 @@ function runEstimates(ids){
   (function step(){
     const t = performance.now();
     while (i < todo.length && performance.now() - t < 40){ const st = STOPS.find(s => s.stop_idx===todo[i]); if (st) EST[st.stop_idx] = estimateStop(st); i++; }
-    $('#mapProg').textContent = i < todo.length ? `Estimating worst-wind exposure… ${i} / ${todo.length}` : '';
+    $('#mapProg').textContent = i < todo.length ? `Estimating worst-monsoon exposure… ${i} / ${todo.length}` : '';
     if (S.page==='find' || i >= todo.length) findRefresh();
     if (i < todo.length) setTimeout(step, 0);
   })();
@@ -3084,7 +3265,7 @@ function renderResults(){
     return `<div class="scard ${id===sel ? 'on' : ''}" data-i="${id}">
       <div class="t"><div><div class="k">${id} · ${esc(s.bus_stop_id)}${s.demo_op ? ' <span class="star">★ demo</span>' : ''}</div>
         <div class="n">${esc(s.stop_name)}</div><div class="sub">${esc(s.road_name)} · ${esc(s.station)}</div></div>${gradeBadge(id)}</div>
-      <div class="m"><span>Worst wind <b>${e ? `${e.from}° ${compass(e.from)}` : '…'}</b></span><span>Load <b>${num(s.load_index).toFixed(2)}</b></span><span><b>${esc(s.prototype)}</b></span>${conf}${pole}</div>
+      <div class="m"><span>Worst monsoon <b>${e ? `${e.from}° ${compass(e.from)}` : '…'}</b></span><span>Load <b>${num(s.load_index).toFixed(2)}</b></span><span><b>${esc(s.prototype)}</b></span>${conf}${pole}</div>
       <div class="a"><button class="b primary" data-act="open">Confirm baseline →</button><button class="b" data-act="zoom">Zoom to</button></div></div>`;
   }).join('') || '<div class="sub">No match</div>';
 }
@@ -3117,7 +3298,7 @@ function mapCard(){
   const ml = s.lat != null ? mapLinks(s) : null;
   $('#mapCard').innerHTML = `<div class="k sub">${s.stop_idx} · ${esc(s.bus_stop_id)}${s.demo_op ? ' · <span class="star">★ demo</span>' : ''}</div><h4>${esc(s.stop_name)}</h4>
     <div class="sub">${esc(s.road_name)} · ${esc(s.station)}</div>
-    <div style="display:flex;gap:12px;align-items:center;margin:10px 0">${e ? windDial(e.from) : ''}<div><div class="sub">Estimated exposure (worst wind)</div>
+    <div style="display:flex;gap:12px;align-items:center;margin:10px 0">${e ? windDial(e.from) : ''}<div><div class="sub">Estimated exposure (worst monsoon)</div>
       <div style="display:flex;gap:8px;align-items:center;margin-top:2px">${gradeBadge(sel)}</div>
       <div class="sub" style="margin-top:3px">${e ? `wind from ${e.from}° ${compass(e.from)} · ${EST_CFG.U} m/s · ${e.src}` : 'computing…'}</div></div></div>
     <div class="kv"><span>Prototype</span><span>${esc(s.prototype)} · ${esc(s.operation_ladder)}</span><span>Load index</span><span>${num(s.load_index).toFixed(2)}</span>
@@ -3157,9 +3338,9 @@ function initMap(){
   }
   const pts = STOPS.filter(s => s.lat != null).map(s => [s.lat, s.lon]);
   if (pts.length) MAP.fitBounds(pts, {padding:[60,60]});
-  $('#mapLegend').innerHTML = `<b>Estimated exposure · worst wind</b>${GRADES.map((g, i) => `<div><i style="background:${g.col}"></i>${g.name} <span class="sub">${i ? GRADES[i-1].max : 0}${g.max < Infinity ? '–' + g.max : '+'}</span></div>`).join('')}
+  $('#mapLegend').innerHTML = `<b>Estimated exposure · worst monsoon</b>${GRADES.map((g, i) => `<div><i style="background:${g.col}"></i>${g.name} <span class="sub">${i ? GRADES[i-1].max : 0}${g.max < Infinity ? '–' + g.max : '+'}</span></div>`).join('')}
     <div><i style="background:#fff;box-shadow:0 0 0 2px #1f2328"></i>★ demo stop</div>
-    <div class="note" style="margin-top:4px">Index = schematic waiting-area exposure of the reference baseline shelter under each stop's own worst wind (${EST_CFG.step}° sweep, ${EST_CFG.U} m/s, 1 bus). Thresholds provisional.</div>`;
+    <div class="note" style="margin-top:4px">Index = schematic Waiting zone exposure of the reference baseline under the monsoon that is worse for each stop (NE ${CFG.WIND.ne}° or SW ${CFG.WIND.sw}°, ${EST_CFG.U} m/s, 1 bus). Thresholds provisional.</div>`;
 }
 function findShow(){
   initMap();
@@ -3221,18 +3402,34 @@ if (!store.get(ARC_KEY + '.codes2')){
 for (const a of [...ARC].reverse()) if (!a.code) a.code = nextCode(a.stop_idx, a.op);
 function saveArc(){ const ok = store.set(ARC_KEY, ARC); if (!ok) toast('Browser storage full – export the archive and delete old entries'); renderSteps(); return ok; }
 const blobUrl = b => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); });
-async function addToArchive(kind, extra){
+// the current (saved, else live) version of this prototype with its metrics and plan thumbnail
+async function arcSnapshot(){
   const sc = S.saved[S.op] || scen(), els = clone(sc.els);
-  const e = exposure(computeField(els), els), b = exposure(computeField(baseEls()), baseEls());
-  const o = OPS.find(x => x.key===S.op);
-  const a = {id:uid(), ts:new Date().toISOString(), kind,
-    title:`${S.stop.stop_idx} ${o.name}${S.op==='inplace' ? ' ' + ((sc.opt || {}).variant || '') : ''}${kind==='design' ? ' · ' + (extra.params?.roofStyle || '') + ' roof' : ''}`,
-    stop_idx:S.stop.stop_idx, stop_name:S.stop.stop_name, bus_stop_id:S.stop.bus_stop_id, op:S.op, opt:clone(sc.opt || {}), els,
-    wind:{from:S.wind.from, U:S.wind.U, src:S.wind.src}, bus:clone(S.bus), saved:!!S.saved[S.op] && !dirty(S.op),
-    metrics:{wa:r1(e.wa), pax:r1(e.pax), hi:Math.round(e.hiShare), baseWa:r1(b.wa), roof:r1(roofLen(els)),
+  // exposure = Waiting zone (wa / hi / baseWa keep their names; basis marks entries made after the switch)
+  const e = zoneStats(els, computeField(els)), b = zoneStats(baseEls(), computeField(baseEls()));
+  return {opt:clone(sc.opt || {}), els, wind:{from:S.wind.from, U:S.wind.U, src:S.wind.src}, bus:clone(S.bus), saved:!!S.saved[S.op] && !dirty(S.op),
+    metrics:{basis:'waiting zone', wa:r1(e.waitExp ?? 0), hi:Math.round(e.waitHi ?? 0), baseWa:r1(b.waitExp ?? 0), roof:r1(roofLen(els)),
              area:r1(zoneStats(els).area.waiting), baseArea:r1(zoneStats(baseEls()).area.waiting), sight:clone(SIGHT_CFG),   // waiting zone m²
              view:sightline(els).eyes.map(y => y.mean == null ? null : Math.round(y.mean)), baseView:sightline(baseEls()).eyes.map(y => y.mean == null ? null : Math.round(y.mean))},
-    thumb: await blobUrl(await planPng(560, 'image/jpeg', .82)), ...extra};
+    thumb: await blobUrl(await planPng(560, 'image/jpeg', .82))};
+}
+// an option opened from Archive (Open in Edit / Design) at this stop and prototype: saving writes back into it
+function arcEditing(){ const k = S.arcEdit; return k && S.stop && k.stop===S.stop.stop_idx && k.op===S.op ? ARC.find(a => a.id===k.id) || null : null; }
+async function updateArchived(extra){
+  const a = arcEditing(); if (!a) return null;
+  Object.assign(a, await arcSnapshot(), extra, {edited:new Date().toISOString()});
+  if (a.kind==='design'){ a.params = {...DSN.params}; if (!extra.thumb3d && S.page==='design' && window.D3 && D3.hasModel()) a.thumb3d = D3.png(640); }
+  if (saveArc()) toast(`Archive option ${a.code} updated`);
+  render();
+  return a;
+}
+async function addToArchive(kind, extra){
+  const ae = arcEditing();
+  if (ae && confirm(`Update archive option ${ae.code} with this version?\n\nOK = update ${ae.code} · Cancel = add a new option`)) return updateArchived(extra);
+  const o = OPS.find(x => x.key===S.op), snap = await arcSnapshot();
+  const a = {id:uid(), ts:new Date().toISOString(), kind,
+    title:`${S.stop.stop_idx} ${o.name}${S.op==='inplace' ? ' ' + ((snap.opt || {}).variant || '') : ''}${kind==='design' ? ' · ' + (extra.params?.roofStyle || '') + ' roof' : ''}`,
+    stop_idx:S.stop.stop_idx, stop_name:S.stop.stop_name, bus_stop_id:S.stop.bus_stop_id, op:S.op, ...snap, ...extra};
   a.code = nextCode(a.stop_idx, a.op); a.tag = '';
   ARC.unshift(a);
   if (!saveArc()) ARC.shift();
@@ -3251,7 +3448,7 @@ function renderArchive(){
           <input class="tg" data-act="tag" value="${esc(a.tag || '')}" placeholder="Tag: what this option tests, e.g. longer roof" title="Shown in Analysis"></div>
         <input class="tt" data-act="title" value="${esc(a.title)}" title="Rename">
         <div class="m">${esc(a.stop_idx)} · ${esc(a.stop_name)} · ${new Date(a.ts).toLocaleString()}</div>
-        <div class="m">Wind ${a.wind.from}° ${compass(a.wind.from)} · ${a.wind.U} m/s · waiting <b>${m.wa}</b> (baseline ${m.baseWa})${d == null ? '' : ` <span class="${d<=0?'down':'up'}">${d>0?'+':''}${d.toFixed(0)}%</span>`}</div>
+        <div class="m">Wind ${a.wind.from}° ${compass(a.wind.from)} · ${a.wind.U} m/s · waiting zone <b>${m.wa}</b>${m.basis !== 'waiting zone' ? '*' : ''} (baseline ${m.baseWa})${d == null ? '' : ` <span class="${d<=0?'down':'up'}">${d>0?'+':''}${d.toFixed(0)}%</span>`}</div>
         ${a.params ? `<div class="m">Roof ${esc(a.params.roofStyle)} · clear ${a.params.roofH} m · overhang ${a.params.roofOver} m · screens ${a.params.scrH} m</div>` : ''}
         <div class="btns"><button class="b" data-act="edit">Open in Edit</button><button class="b" data-act="design">Design</button><button class="b" data-act="dl" title="Download this entry as JSON">JSON</button><button class="b" data-act="del" title="Delete">✕</button></div></div></div>`;
   }).join('') : `<div class="arc-empty">Nothing archived yet. Use <b>Add to Archive</b> on the Export page or <b>Save design to Archive</b> on the Design page.</div>`;
@@ -3262,23 +3459,26 @@ function compareArchive(){
   if (rows.length < 2){ $('#arcTable').innerHTML = ''; return; }
   const winds = new Set(rows.map(a => `${a.wind.from}/${a.wind.U}/${a.bus.type}/${a.bus.n}`));
   $('#arcTable').innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Comparison</h2><button class="b" id="arcCmpX">Close</button></div>
-    <table class="cmp" style="margin-top:8px"><tr><th>Item</th><th>Stop</th><th>Prototype</th><th>Wind</th><th>Waiting</th><th>Baseline</th><th>Δ</th><th>Passenger</th><th>Mid/high band</th><th>Roof m</th><th>Roof style</th></tr>
-    ${rows.map(a => { const m = a.metrics, d = m.baseWa >= 1 && a.op!=='baseline' ? (m.wa - m.baseWa)/m.baseWa*100 : null;
-      return `<tr><td>${codeTag(a)} ${esc(a.tag || a.title)}</td><td>${esc(a.stop_idx)}</td><td>${esc(a.op)}${a.opt?.variant ? ' ' + esc(a.opt.variant) : ''}</td><td>${a.wind.from}° · ${a.wind.U} m/s</td><td>${m.wa}</td><td>${m.baseWa}</td>
-        <td class="${d == null ? '' : d<=0 ? 'down' : 'up'}">${d == null ? '–' : (d>0?'+':'') + d.toFixed(0) + '%'}</td><td>${m.pax}</td><td>${m.hi}%</td><td>${m.roof}</td><td>${a.params ? esc(a.params.roofStyle) + ' · ' + a.params.roofH + ' m' : '–'}</td></tr>`; }).join('')}</table>
-    <div class="${winds.size > 1 ? 'warn' : 'note'}">${winds.size > 1 ? 'Wind, wind speed or bus settings differ between rows – this is a sensitivity check, not a controlled comparison. Compare designs under the same scenario.' : 'All rows share wind, speed and bus settings.'} Exposure values are the schematic index.</div>`;
+    <table class="cmp" style="margin-top:8px"><tr><th>Item</th><th>Stop</th><th>Prototype</th><th>Wind</th><th>Waiting zone</th><th>Baseline</th><th>Δ</th><th>Mid/high band</th><th>Roof m</th><th>Roof style</th></tr>
+    ${rows.map(a => { const m = a.metrics, d = m.baseWa >= 1 && a.op!=='baseline' ? (m.wa - m.baseWa)/m.baseWa*100 : null, old = m.basis !== 'waiting zone' ? '*' : '';
+      return `<tr><td>${codeTag(a)} ${esc(a.tag || a.title)}</td><td>${esc(a.stop_idx)}</td><td>${esc(a.op)}${a.opt?.variant ? ' ' + esc(a.opt.variant) : ''}</td><td>${a.wind.from}° · ${a.wind.U} m/s</td><td>${m.wa}${old}</td><td>${m.baseWa}${old}</td>
+        <td class="${d == null ? '' : d<=0 ? 'down' : 'up'}">${d == null ? '–' : (d>0?'+':'') + d.toFixed(0) + '%'}</td><td>${m.hi}%${old}</td><td>${m.roof}</td><td>${a.params ? esc(a.params.roofStyle) + ' · ' + a.params.roofH + ' m' : '–'}</td></tr>`; }).join('')}</table>
+    <div class="${winds.size > 1 ? 'warn' : 'note'}">${winds.size > 1 ? 'Wind, wind speed or bus settings differ between rows – this is a sensitivity check, not a controlled comparison. Compare designs under the same scenario.' : 'All rows share wind, speed and bus settings.'} Exposure values are the schematic index over the Waiting zone${rows.some(a => a.metrics.basis !== 'waiting zone') ? '; * archived before the switch (waiting area under the roof) – Open in Edit and save to update' : ''}.</div>`;
   $('#arcCmpX').onclick = () => { ARCSEL.clear(); $('#arcTable').innerHTML = ''; renderArchive(); };
 }
 function openArchived(a, page){
   const st = STOPS.find(s => s.stop_idx===a.stop_idx); if (!st){ toast('Stop not in this build'); return; }
   if (Object.keys(S.scen).some(dirty) && !confirm('Unsaved edits at the current stop will be lost. Continue?')) return;
   loadStop(st);
-  S.wind = {...a.wind, src:'from archive: ' + a.title}; S.bus = clone(a.bus);
-  S.op = a.op; S.scen[a.op] = {els:withZones(migratePax(clone(a.els))), opt:clone(a.opt)}; S.sel = null;
+  S.wind = {...a.wind, src:'from archive: ' + a.title}; S.bus = alignBus(clone(a.bus));
+  // one baseline per stop: an archived baseline only fills in when the stop has none saved yet
+  const shared = a.op==='baseline' && S.saved.baseline;
+  S.op = a.op; if (!shared) S.scen[a.op] = {els:withZones(migratePax(clone(a.els))), opt:clone(a.opt)}; S.sel = null;
   if (a.params) DSN.params = {...dDefaults(), ...a.params};
+  S.arcEdit = {id:a.id, stop:a.stop_idx, op:a.op};
   syncControls(); refreshField();
-  goPage(page);
-  toast(`Opened ${a.title} – save it to make it the current version`);
+  goPage(a.op==='baseline' && page==='edit' ? 'baseline' : page);
+  toast(shared ? `Opened ${a.code} on this stop's saved baseline (one baseline per stop)` : `Opened ${a.code} · ${a.title} – Save version updates this archive option`);
 }
 $('#arcQ').oninput = renderArchive;
 $('#arcGrid').onclick = e => {
@@ -3323,8 +3523,7 @@ function arcEval(a){
   } finally { Object.assign(S, keep); }
 }
 const AN_METRICS = [
-  {name:'Waiting-area exposure', sub:'schematic index · Δ % vs baseline', val:r => r.v.ex.wa, d:r => pct(r.v.ex.wa, r.b.ex.wa), lower:true, fmt:v => v.toFixed(1)},
-  {name:'Passenger exposure', sub:'schematic index · Δ % vs baseline', val:r => r.v.ex.pax, d:r => pct(r.v.ex.pax, r.b.ex.pax), lower:true, fmt:v => v.toFixed(1)},
+  {name:'Waiting zone exposure', sub:'schematic index · Δ % vs baseline', val:r => r.v.zs.waitExp, d:r => r.v.zs.waitExp == null || r.b.zs.waitExp == null ? null : pct(r.v.zs.waitExp, r.b.zs.waitExp), lower:true, fmt:v => v.toFixed(1)},
   {name:'Waiting zone area', sub:'m² · Δ % vs baseline', val:r => r.v.zones.waiting, d:r => pct(r.v.zones.waiting, r.b.zones.waiting), lower:false, fmt:v => v.toFixed(1) + ' m²'},
   ...[0, 1].map(i => ({name:`View of approaching bus · eye ${SIGHT_CFG.eyes[i]} m`, sub:`% clear, ${SIGHT_CFG.d0}–${SIGHT_CFG.d1} m · Δ points vs baseline`,
     val:r => r.v.sight.eyes[i].mean, d:r => r.v.sight.eyes[i].mean == null || r.b.sight.eyes[i].mean == null ? null : r.v.sight.eyes[i].mean - r.b.sight.eyes[i].mean, lower:false, pts:true, fmt:v => v.toFixed(0) + '%'})),
@@ -3386,20 +3585,21 @@ const DPARAMS = [
   ['roofRise', 'Barrel / butterfly / gable rise (m) · preview', 0, 1.2, 0.05, 0.35],
   ['Structure'],
   ['colRound', 'Column section', ['square', 'round'], 'square'],
-  ['colD', 'Column size / Ø (m)', 0.1, 0.6, 0.01, 0.3],
+  ['colD', 'Column size / Ø (m) · DXF without outlines', 0.1, 0.6, 0.01, 0.3],
   ['Screens'],
   ['scrH', 'Screen height (m)', 0.5, 2.6, 0.05, 2.0],
   ['scrGap', 'Screen bottom gap (m)', 0, 0.5, 0.05, 0.1],
   ['Arrival display'],
-  ['infPr', 'Post radius (m)', 0.02, 0.1, 0.01, 0.04],
-  ['infPh', 'Post height (m)', 1.5, 3.0, 0.05, 2.4],
-  ['infB', 'Panel bottom (m)', 0.5, 2.5, 0.05, 1.6],
-  ['infH', 'Panel height (m)', 0.2, 1.2, 0.05, 0.6],
+  ['infPanelH', 'Panel height (m)', 0.2, 1.2, 0.05, 0.5],
+  ['infT', 'Panel thickness (m)', 0.04, 0.3, 0.01, 0.1],
+  ['infDrop', 'Hanger length (m)', 0.05, 0.8, 0.05, 0.15],
+  ['infRod', 'Hanger radius (m)', 0.005, 0.04, 0.005, 0.015],
   ['Seats'],
   ['seatH', 'Seat height (m)', 0.3, 0.6, 0.01, 0.45],
   ['backH', 'Backrest height (m)', 0.2, 0.8, 0.05, 0.4],
   ['Planting'],
-  ['planterH', 'Planter / buffer height ≤ 1.0 (m)', 0.3, 1.0, 0.05, 0.9],
+  ['planterH', 'Planter / buffer total height ≤ 1.0 (m)', 0.3, 1.0, 0.05, 1.0],
+  ['planterBase', 'Planter soil base (m) · preview', 0.05, 0.5, 0.05, 0.2],
   ['treeTr', 'Trunk radius (m)', 0.05, 0.4, 0.01, 0.15],
   ['treeCh', 'Clear trunk height (m)', 1.5, 5.0, 0.1, 2.5],
   ['Bollard & pole'],
@@ -3412,7 +3612,7 @@ const DPARAMS = [
   ['plumeZ', 'Plume section height (m) · preview', 0.5, 2.5, 0.1, 1.5],
 ];
 const GH_ALIAS = {roofH:'roof_H', roofOver:'roof_ov', roofT:'roof_t', colD:'col_s', colRound:'col_round', scrGap:'scr_g', scrH:'scr_h',
-  infPr:'inf_pr', infPh:'inf_ph', infB:'inf_b', infH:'inf_h', seatH:'seat_sh', backH:'back_bh', treeTr:'tree_tr', treeCh:'tree_ch',
+  seatH:'seat_sh', backH:'back_bh', treeTr:'tree_tr', treeCh:'tree_ch',
   bolR:'bol_r', bolH:'bol_h', poleR:'pole_r', poleH:'pole_h', planterH:'pl_h', busH:'bus_h'};
 const DDISPLAY = [['zones', 'Zones (5 types, flat)', true], ['bus', 'Buses', true], ['plume', 'Plume section (schematic)', true], ['pax', 'Passengers', true], ['ghost', 'Existing shelter outline', true],
                   ['context', 'Road markings & stop zone', true], ['edges', 'Edges', true], ['shadow', 'Shadows', true]];
@@ -3523,14 +3723,17 @@ const ghParams = () => ({
   footpath_z:0.15, params:DSN.params,
   dimensions: window.D3 && D3.dims ? D3.dims() : null,   // as labelled in the 3D view (Dimensions on), one row per roof
   gh_file:'week10/04_design/bus_stop_components.gh',
-  gh_sliders:Object.fromEntries(Object.entries(GH_ALIAS).map(([k, a]) => [a, k==='colRound' ? DSN.params[k]==='round' : DSN.params[k]])),
+  gh_sliders:Object.fromEntries(Object.entries(GH_ALIAS).map(([k, a]) => [a, k==='colRound' ? DSN.params[k]==='round' : DSN.params[k]]).concat(
+    // the GH file still builds the display on posts: its sliders get the hung panel's height and the roof height as post height
+    [['inf_pr', DSN.params.infRod], ['inf_ph', DSN.params.roofH], ['inf_b', DSN.params.roofH - DSN.params.infDrop - DSN.params.infPanelH], ['inf_h', DSN.params.infPanelH]])),
   not_in_gh:{roofStyle:DSN.params.roofStyle==='flat' ? null : `${DSN.params.roofStyle} roof is preview-only; the GH file builds a flat roof`,
     roofPitch:'preview only', roofRise:'preview only', plumeZ:'preview only',
+    planterBase:'preview only: soil base + shrub mass; the GH file extrudes the planter as one block pl_h',
     BS_ROOF_LINK:'GH layer filter BS_ROOF* picks it up as a normal roof', BS_SCREEN_PERF:'GH filter BS_SCREEN* builds it like a solid screen (no separate material)',
     roofH:'GH measures from the DXF plane (road, z = 0); the preview adds the 0.15 m footpath'},
   layer_map:{'BS_ROOF*':'g01 roof: offset roof_ov → move to roof_H → extrude roof_t', BS_COLUMN:'g02 columns: square Center Box / round Cylinder (col_round), size col_s', BS_COLUMN_OUTLINE:'section seen on site per column (circle = round), drawn at the plan size; GH may read it in place of col_round',
     BS_ROOF_RIDGE:'centre column line under a roof = ridge of the gable roof (roofStyle gable, rise roofRise); not built by the GH file yet',
-    'BS_SCREEN*':'g03 screens: bottom gap scr_g, height scr_h', BS_INFO:'g04 display: posts inf_pr × inf_ph at the line ends, panel inf_b → inf_b + inf_h',
+    'BS_SCREEN*':'g03 screens: bottom gap scr_g, height scr_h', BS_INFO:'g04 display: panel inf_b → inf_b + inf_h; the web 3D hangs it from the roof, the GH file still uses posts inf_pr × inf_ph at the line ends',
     BS_SEAT:'g05 seat plan extruded to seat_sh', BS_SEAT_BACK:'g05 backrest line moved to seat_sh, extruded back_bh', BS_TREE:'g06 trunk tree_tr up to tree_ch, crown sphere = circle radius',
     BS_BOLLARD:'g07 bol_r × bol_h', BS_POLE:'g08 pole_r × pole_h', BS_PLANTER:'g09 extruded pl_h (≤ 1 m)', BS_BUS:'g10 bus block bus_h'},
 });
@@ -3553,7 +3756,7 @@ $('#dArc').onclick = async () => {
 (function boot(){
   if (!STOPS.length) return;
   const pf = store.get('bsw.prefs') || {}; S.dims = !!pf.dims; S.satOn = pf.sat !== false; S.satA = pf.satA ?? 0.45;
-  S.zonesOn = pf.zonesOn !== false; S.compsOn = pf.compsOn !== false; S.zlock = pf.zlock || {}; S.zhide = pf.zhide || {}; S.zlabels = pf.zlabels !== false;
+  S.zonesOn = pf.zonesOn !== false; S.compsOn = pf.compsOn !== false; S.zlock = pf.zlock || {}; S.zhide = pf.zhide || {}; S.zlabels = pf.zlabels !== false; S.busOn = pf.busOn !== false; S.poleOn = pf.poleOn !== false;
   const hp = readHash(), st = STOPS.find(s => s.stop_idx===hp.stop || s.bus_stop_id===hp.stop) || STOPS[0];
   loadStop(st);
   if (hp.wind != null && hp.wind !== '') setWind(num(hp.wind), 'from link');
@@ -3584,7 +3787,7 @@ const M = {
   roof: mat(0xf3f5f7, {r: .45, m: .15}), link: mat(0xdfe6ee, {r: .5, a: .75}), col: mat(0x2b3a4a, {r: .5, m: .3}),
   solid: mat(0x8fb7dd, {r: .15, a: .55, side: THREE.DoubleSide}), perf: mat(0x55636f, {r: .6, a: .42, side: THREE.DoubleSide}),
   info: mat(0x6a3d9a, {r: .5}), post: mat(0x3a3f45, {r: .5, m: .4}), seat: mat(0xc79a63, {r: .7}),
-  planter: mat(0x9aa0a7, {r: .9}), soil: mat(0x6fae4f, {r: 1}), trunk: mat(0x6b4f2a), crown: mat(0x79b45a, {r: 1, a: .92}),
+  planter: mat(0x9aa0a7, {r: .9}), soil: mat(0x6fae4f, {r: 1}), earth: mat(0x7a5a3c, {r: 1}), shrub: mat(0x5e9a44, {r: 1}), trunk: mat(0x6b4f2a), crown: mat(0x79b45a, {r: 1, a: .92}),
   bollard: mat(0x8a8a8a, {r: .5, m: .3}), pax: mat(0x2b2f35, {r: .8}), bus: mat(0xe9edf2, {r: .5, a: .9}),
   wa: mat(0x1d63b8, {a: .16, side: THREE.DoubleSide}), exhaust: mat(0xd7263d),
   zone: Object.fromEntries(ZONE_DEF.map(z => [z.key, mat(parseInt(z.col.slice(1), 16), {a: z.key === 'canopy' ? .14 : .30, side: THREE.DoubleSide})])),
@@ -3784,12 +3987,20 @@ function build(text, P, D, fit){
     cast(R.mesh); edges(R.mesh, null, E); tag(R.mesh, 'BS_ROOF_LINK', 'Roof link over the gap'); des.add(R.mesh); roofs.push(R); inc('link');
   }
   const underAt = p => { const R = roofs.find(r => r.inside(p)); return R ? R.under(p) : FOOT + P.roofH; };
-  const roundCols = by('BS_COLUMN_OUTLINE').filter(e => e.c);   // circles = columns round on site
+  // each column's section and size from its outline (circle = round Ø, square = width), centred on the column point;
+  // a DXF without outlines falls back to the Design page's column size / section
+  const outl = by('BS_COLUMN_OUTLINE').map(e => {
+    if (e.c) return {p: e.c, d: 2*e.r, rnd: true};
+    if (!e.pts || e.pts.length < 4) return null;
+    const xs = e.pts.map(p => p[0]), ys = e.pts.map(p => p[1]);
+    return {p: [(Math.min(...xs) + Math.max(...xs))/2, (Math.min(...ys) + Math.max(...ys))/2], d: Math.hypot(e.pts[1][0] - e.pts[0][0], e.pts[1][1] - e.pts[0][1]), rnd: false};
+  }).filter(Boolean);
   for (const c of by('BS_COLUMN')){
-    const h = underAt(c.p) - FOOT, rnd = P.colRound === 'round' || roundCols.some(q => Math.hypot(q.c[0]-c.p[0], q.c[1]-c.p[1]) < 0.05);
-    const o = rnd ? cyl(c.p, P.colD/2, FOOT, h, M.col, 16) : new THREE.Mesh(new THREE.BoxGeometry(P.colD, P.colD, h), M.col);
+    const q = outl.find(q => Math.hypot(q.p[0]-c.p[0], q.p[1]-c.p[1]) < 0.05);
+    const h = underAt(c.p) - FOOT, rnd = P.colRound === 'round' || !!(q && q.rnd), d = q ? q.d : P.colD;
+    const o = rnd ? cyl(c.p, d/2, FOOT, h, M.col, 16) : new THREE.Mesh(new THREE.BoxGeometry(d, d, h), M.col);
     if (!rnd) o.position.set(c.p[0], c.p[1], FOOT + h/2);
-    cast(o); edges(o, null, E); tag(o, 'BS_COLUMN', `Column ${rnd ? 'Ø' : ''}${P.colD} m, ${h.toFixed(2)} m high`); des.add(o); inc('column');
+    cast(o); edges(o, null, E); tag(o, 'BS_COLUMN', `Column ${rnd ? 'Ø' : ''}${r2(d)} m, ${h.toFixed(2)} m high`); des.add(o); inc('column');
   }
   // dimensions: shown in the parallel views only (Top / Front / Back / Left / Right), hidden in Persp
   const dg = dims3d(by, kerb, rear, P); lastDims = dg.userData.rows; dimsGroup = D.dims ? dg : null;
@@ -3800,17 +4011,26 @@ function build(text, P, D, fit){
   }
   for (const s of by('BS_INFO')){
     const g = new THREE.Group();
-    g.add(cyl(s.a, P.infPr, FOOT, P.infPh, M.post, 8), cyl(s.b, P.infPr, FOOT, P.infPh, M.post, 8));
-    const pnl = boxAlong(s.a, s.b, 0.08, FOOT + P.infB, P.infH, M.info); edges(pnl, null, E); g.add(pnl);
+    // panel hung under the roof on two short rods, a quarter of the width in from each end
+    const at = k => [s.a[0] + (s.b[0] - s.a[0])*k, s.a[1] + (s.b[1] - s.a[1])*k], rods = [at(0.25), at(0.75)];
+    const top = Math.min(...rods.map(underAt)) - P.infDrop, pnl = boxAlong(s.a, s.b, P.infT, top - P.infPanelH, P.infPanelH, M.info);
+    for (const r of rods) g.add(cyl(r, P.infRod, top, underAt(r) - top, M.post, 8));
+    edges(pnl, null, E); g.add(pnl);
     g.traverse(o => cast(o)); tag(g, 'BS_INFO', 'Arrival display'); g.children.forEach(c => c.userData = g.userData); des.add(g); inc('display');
   }
   for (const s of by('BS_SEAT').filter(e => e.t === 'poly')){
     const o = prism(s.pts, FOOT, P.seatH, M.seat); cast(o); edges(o, null, E); tag(o, 'BS_SEAT', `Seat, ${P.seatH} m`); des.add(o); inc('seat');
   }
   for (const s of by('BS_SEAT_BACK')){ const o = boxAlong(s.a, s.b, 0.05, FOOT + P.seatH, P.backH, M.seat); cast(o); edges(o, null, E); tag(o, 'BS_SEAT_BACK', 'Seat backrest'); des.add(o); }
+  // planter: soil base (planterBase) with a shrub mass on top up to the total height, inset and softened at the edges
   for (const s of by('BS_PLANTER').filter(e => e.t === 'poly')){
-    const o = prism(s.pts, FOOT, P.planterH, M.planter); cast(o); edges(o, null, E); tag(o, 'BS_PLANTER', `Planter / buffer, ${P.planterH} m`); des.add(o);
-    const soil = prism(s.pts, FOOT + P.planterH, 0.02, M.soil); soil.userData = o.userData; des.add(soil); inc('planter');
+    const base = Math.min(P.planterBase ?? 0.2, P.planterH - 0.1), shrubH = P.planterH - base;
+    const o = prism(s.pts, FOOT, base, M.earth); cast(o); edges(o, null, E); tag(o, 'BS_PLANTER', `Planter: soil ${base} m + shrubs ${r2(shrubH)} m (total ${P.planterH} m)`); des.add(o);
+    const cx = s.pts.reduce((a, p) => a + p[0], 0)/s.pts.length, cy = s.pts.reduce((a, p) => a + p[1], 0)/s.pts.length;
+    const ins = s.pts.map(p => { const dx = p[0] - cx, dy = p[1] - cy, L = Math.hypot(dx, dy) || 1, k = Math.max(0, L - 0.12)/L; return [cx + dx*k, cy + dy*k]; });
+    const bev = Math.min(0.1, shrubH/3);
+    const g = new THREE.ExtrudeGeometry(shapeOf(ins), {depth: Math.max(0.02, shrubH - 2*bev), bevelEnabled: true, bevelThickness: bev, bevelSize: 0.08, bevelSegments: 3});
+    const sb = new THREE.Mesh(g, M.shrub); sb.position.z = FOOT + base + bev; cast(sb); sb.userData = o.userData; des.add(sb); inc('planter');
   }
   for (const t of by('BS_TREE')){
     // as GH g06: trunk up to the clear trunk height, crown sphere centred one radius above it

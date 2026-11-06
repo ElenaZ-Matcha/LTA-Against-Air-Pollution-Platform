@@ -30,6 +30,15 @@ Record of the database files uploaded with the platform. Hashes let you check th
 | `01-Platform/exports/P065_lateral_scenario.json` | 11.6 KB | 2026-10-28 | `e748e8fbd392` | sample scenario export (elements, zones, wind, vehicles) for P065 |
 The crops row hashes all 89 images together (SHA-256 of the concatenated per-file SHA-256 digests, sorted by name).
 
+## Upload 2 — 2026-11-06
+
+- **Source folder:** `AR5801/0-Week review/week12/01-Platform`.
+- **Database:** no change. Week 12 builds on the same `02-Data` (it has no copy of its own); `data_fixes.json` and the P041 archive are the same as in Upload 1.
+- **Uploaded:** new `platform_template.html`, `make_platform.py` and the built page.
+- **Changed for this repository:** the built page links the satellite crops as `../02-Data/crops/` instead of the local `../../week11/02-Data/crops/`. Rebuilding with `make_platform.py` in this repository gives the same file.
+- **Kept from Upload 1:** `serve_platform.py` (the week 12 copy serves the parent of the week folders, which does not fit this repository), the zoning editor and the P065 sample exports. These are not in the week 12 folder.
+- **Earlier version:** tag `interim`.
+
 ## Correction records
 
 Field-level fixes are kept separate from the source data and applied in this order when the page is built:

@@ -23,8 +23,12 @@ from pathlib import Path
 from PIL import Image
 from pyproj import Transformer
 
+import os
+
 HERE = Path(__file__).resolve().parent
-DATA = HERE.parent / "02-Data"
+# week12 builds on the week11 data (no copy of 02-Data here); a local ../02-Data wins when present
+DATA = next(p for p in (HERE.parent / "02-Data", HERE.parent.parent / "week11" / "02-Data") if p.exists())
+CROPS_HREF = Path(os.path.relpath(DATA / "crops", HERE)).as_posix()   # crops linked from the built page
 
 NAME = "LTA-Against Air Pollution Platform"
 # demo stops: stop_idx -> (demo operation, in-place variant)
@@ -101,9 +105,9 @@ def main():
         crop = DATA / "crops" / f"{r['stop_idx']}.jpg"
         if crop.exists():
             w = round(Image.open(crop).size[0] * mpp, 3)
-            # demo stops embedded; the others linked, so the page needs ../02-Data/crops next to it
+            # demo stops embedded; the others linked, relative to the page (week11/02-Data/crops from week12)
             sat[r["stop_idx"]] = ({"src": "data:image/jpeg;base64," + base64.b64encode(crop.read_bytes()).decode(), "w": w}
-                                  if r["stop_idx"] in DEMO else {"href": f"../02-Data/crops/{r['stop_idx']}.jpg", "w": w})
+                                  if r["stop_idx"] in DEMO else {"href": f"{CROPS_HREF}/{r['stop_idx']}.jpg", "w": w})
     stops.sort(key=lambda d: (d["stop_idx"] not in DEMO, list(DEMO).index(d["stop_idx"]) if d["stop_idx"] in DEMO else 0, d["stop_idx"]))
     # baseline from the week-10 workbench, then the platform's own corrections on top (field by field)
     fixes = {}
@@ -112,11 +116,18 @@ def main():
             for k, v in json.loads(path.read_text(encoding="utf-8")).items():
                 if k in {d["stop_idx"] for d in stops}:
                     fixes[k] = {**fixes.get(k, {}), **v}
-    # archive carried into every browser address: the newest exported archive in this folder or exports/
-    arcs = sorted([*HERE.glob("LTA-AAP_archive_*.json"), *(HERE / "exports").glob("LTA-AAP_archive_*.json")], key=lambda p: p.stat().st_mtime)
-    seed = json.loads(arcs[-1].read_text(encoding="utf-8")) if arcs else []
+    # archive carried into every browser address: all archive exports (*archive*.json) in this folder or exports/,
+    # merged by id (newer file wins); the page adds each entry once
+    arcs = sorted([*HERE.glob("*archive*.json"), *(HERE / "exports").glob("*archive*.json")], key=lambda p: p.stat().st_mtime)
+    seed_by_id = {}
+    for p in arcs:
+        j = json.loads(p.read_text(encoding="utf-8"))
+        for a in (j if isinstance(j, list) else [j]):
+            if isinstance(a, dict) and a.get("id") and a.get("els") is not None and a.get("stop_idx"):
+                seed_by_id[a["id"]] = a
+    seed = sorted(seed_by_id.values(), key=lambda a: a.get("ts", ""), reverse=True)
     if arcs:
-        print(f"archive seed: {arcs[-1].name} ({len(seed)} item(s))")
+        print(f"archive seed: {len(seed)} item(s) from {', '.join(p.name for p in arcs)}")
     tpl = (HERE / "platform_template.html").read_text(encoding="utf-8")
     html = (tpl.replace("/*__DATA__*/[]", json.dumps(stops, ensure_ascii=False))
                .replace("/*__SAT__*/{}", json.dumps(sat))
