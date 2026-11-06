@@ -34,7 +34,7 @@ The designer's workflow follows the left navigation of the page:
                                             standalone zoning editor (early prototype, now merged into the platform)
   serve_platform.py                         local server; exports are written into 01-Platform/exports/
   data_fixes.json                           corrections made inside the platform
-  exports/                                  sample exports (P041 archive, P065 DXF / GH params / scenario)
+  exports/                                  sample exports (P041 options to import, P065 DXF / GH params / scenario)
 02-Data/                                    the project database used by the platform
 DATA_LOG.md                                 upload record of every data file (source, date, size, hash)
 index.html                                  site root; forwards to the platform page (for static hosting such as Vercel)
@@ -100,6 +100,7 @@ python 01-Platform/make_platform.py
 
 **Storage**
 - The Archive is kept in the browser (`localStorage`), separately for every address (`file://` and `http://localhost:8765` are different). Use *Export archive* / *Import archive* to move or back up options; nothing is stored on a server.
+- The page starts with an empty Archive. `make_platform.py` builds any `*archive*.json` in `01-Platform/` or `exports/` into the page for every visitor, so keep exports you do not want published under another name. `exports/P041_transversal_options.json` can be loaded with *Import archive*.
 
 ## Versions
 

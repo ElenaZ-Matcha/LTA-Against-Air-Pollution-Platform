@@ -39,6 +39,12 @@ The crops row hashes all 89 images together (SHA-256 of the concatenated per-fil
 - **Kept from Upload 1:** `serve_platform.py` (the week 12 copy serves the parent of the week folders, which does not fit this repository), the zoning editor and the P065 sample exports. These are not in the week 12 folder.
 - **Earlier version:** tag `interim`.
 
+## Upload 3 — 2026-11-06
+
+- **Database:** no change.
+- **Archive:** the 4 P041 options are no longer built into the page, so its Archive starts empty.
+- **Renamed:** `01-Platform/exports/P041_transversal_options_archive.json` to `P041_transversal_options.json` (same content), so that a rebuild does not put them back.
+
 ## Correction records
 
 Field-level fixes are kept separate from the source data and applied in this order when the page is built:
