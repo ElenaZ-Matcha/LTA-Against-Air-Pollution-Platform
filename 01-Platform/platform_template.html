@@ -389,6 +389,72 @@ header.top{justify-content:space-between}
 .acard .bd .lbl input.tg{flex:1;min-width:0;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:3px 7px}
 .acard .bd .btns{margin-top:auto;padding-top:6px}
 .arc-empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0}
+
+/* ---------- MOBILE LAYOUT (Final delivery, <=768px): rail -> bottom tab bar, one pane at a time (.mbar switches) ---------- */
+.mbar{display:none}
+@media (max-width:768px){
+  html,body{height:100%;overflow:hidden}
+  body{font-size:13.5px}
+  .shell{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;height:100vh;height:100dvh}
+  .rail{grid-row:2;flex-direction:row;align-items:stretch;gap:0;padding:2px 4px calc(2px + env(safe-area-inset-bottom));overflow-x:auto;overflow-y:hidden;border-top:1px solid var(--line);background:var(--panel);scrollbar-width:none}
+  .rail::-webkit-scrollbar{display:none}
+  .rail .logo,.rail-foot{display:none}
+  .nav{flex:1 1 0;min-width:0;width:auto;border-radius:10px;padding:6px 1px 5px;font-size:9.5px;min-height:48px}
+  .nav span{max-width:100%;overflow-wrap:anywhere}
+  .nav svg{width:20px;height:20px}
+  .nav.done::after{top:2px;right:4px}
+  .mainwrap{grid-row:1;grid-template-rows:auto auto minmax(0,1fr)}
+  header.top{gap:8px;padding:8px 10px;flex-wrap:nowrap}
+  .brand{min-width:0;flex:1}
+  .brand > b{font-size:15px}
+  .brand span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header .status{flex:none;gap:6px}
+  #saveState{display:none!important}
+  header .status .b{padding:7px 10px;min-height:36px}
+  .mbar{display:flex;gap:6px;padding:0 10px 8px;background:var(--bg)}
+  .mbar:empty{display:none}
+  .mbar button{flex:1;min-height:36px;border:1px solid var(--line);background:#fff;border-radius:9px;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+  .mbar button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+  .pages{margin:0;border-radius:0;border-left:0;border-right:0;border-bottom:0}
+  /* pages with panes: one child fills the screen, the others wait behind the .mbar tabs */
+  .page.on[data-m]{display:block;position:relative}
+  /* before the pane script runs, Find shows its map at full size so Leaflet starts with a real box */
+  #pgFind.on:not([data-m]){display:block}
+  #pgFind.on:not([data-m]) > .flist{display:none}
+  #pgFind.on:not([data-m]) > .fmap{height:100%}
+  .page.on[data-m] > .mshow{height:100%;min-height:0}
+  .page.on[data-m] > :not(.mshow){display:none!important}
+  #pgWork > aside,#pgWork > .right{border:0}
+  #stageBox{height:100%}
+  .stage{padding:10px}
+  .toolbar{padding:4px 6px}
+  .tb-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+  .tb-row > *{flex:none}
+  .tool{padding:7px 9px;min-height:36px}
+  section{padding:12px}
+  .b{min-height:34px}
+  input[type=search],input[type=number],select{font-size:16px}   /* no zoom-on-focus in iOS Safari */
+  .flist{border:0}
+  .mapcard{left:10px;right:10px;top:10px;width:auto;max-height:55%;overflow:auto}
+  .maplegend{left:10px;bottom:10px;max-width:calc(100% - 20px);font-size:11px;padding:8px 10px}
+  .maplegend .note{display:none}
+  #pgDesign > .dmain.mshow{display:grid;grid-template-rows:minmax(0,1fr)}
+  #pgDesign .dbar{display:none}
+  .dsplit,.dsplit[data-view]{grid-template-columns:minmax(0,1fr)!important}
+  .dsplit[data-view="2d"] > .d3,.dsplit[data-view="3d"] > .d2,.dsplit[data-view="split"] > .d2,.dgrip{display:none}
+  .vbar{top:8px;left:8px;right:8px}
+  .vbar .seg button{padding:7px 8px}
+  .vhelp{display:none}
+  .an-list{border:0}
+  .an-main{padding:12px}
+  .an-charts{grid-template-columns:minmax(0,1fr)}
+  .an-row,.an-row{grid-template-columns:96px minmax(0,1fr) 54px}
+  .arc-head{padding:10px 12px}
+  .arc-grid{padding:12px;grid-template-columns:minmax(0,1fr)}
+  .arc-cmp:not(:empty){padding:10px 12px}
+  .ecard .big b{font-size:19px}
+  .toast{bottom:76px}
+}
 </style>
 </head>
 <body>
@@ -410,6 +476,7 @@ header.top{justify-content:space-between}
   <div class="brand"><b id="pgTitle">Find stop</b><span id="hdrStop"></span></div>
   <div class="status"><span id="saveState"></span><button class="b" id="save" title="Save this prototype (Ctrl S)">Save version</button><button class="b primary" id="next">Next →</button></div>
 </header>
+<div class="mbar" id="mbar" aria-label="Panes on this page"></div>
 
 <div class="pages">
 <!-- 1 · find stop -->
@@ -419,7 +486,7 @@ header.top{justify-content:space-between}
     <div class="chips" id="gradeChips"></div>
     <div class="row" style="margin-top:8px">
       <label class="sub">Index<select id="fSort"><option value="exp">Estimated exposure ↓</option><option value="load">Load index ↓</option><option value="id">Stop index</option></select></label>
-      <label class="sub">Type<select id="fProto"><option value="">All</option><option value="demo">★ Demo stops</option><option>P-LAT</option><option>P-LON</option><option>P-INP</option></select></label>
+      <label class="sub">Type<select id="fProto"><option value="">All</option><option value="demo">★ Demo stops</option><option>P-TRA</option><option>P-LON</option><option>P-INP</option></select></label>
     </div>
     <label class="sub" style="display:flex;gap:6px;align-items:center;margin-top:6px"><input type="checkbox" id="qFlag">Only shelters off the LTA position <span id="nFlag"></span></label>
     <h2 style="margin:12px 0 6px">Candidate stops <span class="sub" id="fCount"></span></h2>
@@ -484,6 +551,8 @@ header.top{justify-content:space-between}
       <button class="tool" id="paste" title="Paste at the pointer (Ctrl V) · Ctrl D duplicates">Paste</button>
       <button class="tool" id="reset" title="Regenerate this prototype from the baseline">Reset</button>
       <span class="sep"></span>
+      <span class="zchips"><button class="zchip" id="busVis" style="--zc:#4a4a4a"><i></i>Bus<span class="zl"></span></button><button class="zchip" id="poleVis" style="--zc:#1f2328"><i></i>Pole<span class="zl"></span></button></span>
+      <span class="sep"></span>
       <button class="tool" id="dimsT" title="Show dimensions (D)"><svg viewBox="0 0 16 16"><path d="M1 11h14M1 8v6M15 8v6M4 4h8" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Dimensions</button>
       <button class="tool" id="textT" title="Show the zone names and the pole name on the plan"><svg viewBox="0 0 16 16"><path d="M3 4V2.5h10V4M8 2.5v11M6 13.5h4" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>Text</button>
       <button class="tool" id="satT" title="Satellite underlay"><svg viewBox="0 0 16 16"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M2 12l4-4 3 3 2-2 3 3" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>Satellite</button>
@@ -498,8 +567,6 @@ header.top{justify-content:space-between}
       <button class="tb-lab" data-layer-btn="zone" title="Work on the zones (the components cannot be picked)">Zoning</button>
       <button class="tb-eye" id="zonesT" title="Show / hide the zones"></button>
       <span class="zchips" data-zchips></span>
-      <button class="zchip" id="busVis" style="--zc:#4a4a4a"><i></i>Bus<span class="zl"></span></button>
-      <button class="zchip" id="poleVis" style="--zc:#1f2328"><i></i>Pole<span class="zl"></span></button>
       <span class="sep"></span>
       <button class="tool" data-tool="zone" title="Draw a rectangle into the picked zone (Z) – drag from corner to corner"><svg viewBox="0 0 16 16"><rect x="1.5" y="3.5" width="13" height="9" fill="#0f9aa0" fill-opacity=".18" stroke="#0f9aa0" stroke-dasharray="2.5 1.5"/></svg>Draw zone</button>
      </div>
@@ -765,7 +832,7 @@ function siteOf(st){
   const z1 = has(st.zone_s_to) ? num(st.zone_s_to) : 0, z0 = has(st.zone_s_from) ? num(st.zone_s_from) : z1 - L0, L = r1(z1 - z0);
   const isBay = st.stop_type_now === 'bay' && num(st.bay_depth_m) >= 0.8;
   const bd = isBay ? clamp(num(st.bay_depth_m), 0, 6) : 0;
-  const taper = has(st.taper_m) ? clamp(num(st.taper_m), 0.5, 15) : clamp(bd*2.5, 3, 12);
+  const taper = has(st.taper_m) ? clamp(num(st.taper_m), 0.5, 60) : clamp(bd*2.5, 3, 12);
   const b0 = has(st.bay_s_from) ? num(st.bay_s_from) : z0 - taper, b1 = has(st.bay_s_to) ? num(st.bay_s_to) : z1 + taper;
   const half = clamp(num(st.through_kerb_from_axis_m, 5), 2.5, 12);
   const lanes = Math.max(1, Math.round(num(st.osm_lanes, 3)));
@@ -818,7 +885,7 @@ function view(site, els){
 }
 function allowed(st){
   const p = st.prototype;
-  return {baseline:true, inplace:true, split: p==='P-LON' || p==='P-LAT', lateral: p==='P-LAT'};
+  return {baseline:true, inplace:true, split: p==='P-LON' || p==='P-TRA', lateral: p==='P-TRA'};
 }
 function reasonOff(st, key){
   if (key==='split') return st.decisive_reason ? 'Not allowed: ' + st.decisive_reason : 'Not allowed by prototype';
@@ -842,17 +909,26 @@ function compass(deg){ return ['N','NE','E','SE','S','SW','W','NW'][Math.round((
 // ---------- buses ----------
 function busModel(){ const ms = CFG.BUS_MODELS[S.bus.type] || CFG.BUS_MODELS.SD; return ms.find(m => m.key===S.bus.model) || ms[0]; }
 // driving line (bus centre line): through-lane centre outside the bay, BUS_GAP + W/2 off the kerb inside it,
-// joined by two-arc S-curves of radius TURN_R that end where the bay reaches full depth and start where it begins to close
+// joined by two-arc S-curves of radius TURN_R that end where the bay reaches full depth and start where it begins to close;
+// a long, gentle taper is followed instead (see driveY)
 function driveLine(){
   const site = S.site, yIn = -(CFG.BUS_GAP + CFG.BUS_W/2);
   if (!(site.bd > 0)) return {yIn, yOut:yIn, a0:-1e9, a1:-1e9, e0:1e9, e1:1e9, Lc:0};
   const yOut = -site.bd - CFG.LANE_W/2, D = yIn - yOut, R = Math.max(CFG.TURN_R, D/2 + 0.1);
   const Lc = 2*Math.sqrt(R*R - (R - D/2)**2);      // length of one S-curve
   const T = Math.min(site.taper, (site.b1 - site.b0)/2), a1 = site.b0 + T, e0 = site.b1 - T;
+  // a taper at least one S-curve long is gentle enough to drive along: the bus keeps BUS_GAP + W/2 off the kerb all the way
+  if (T >= Lc) return {yIn, yOut, R, D, Lc, a0:site.b0, a1, e0, e1:site.b1, follow:true};
   return {yIn, yOut, R, D, Lc, a0:a1 - Lc, a1, e0, e1:e0 + Lc};
 }
 function driveY(s, dl){
   dl = dl || driveLine();
+  const {yIn, yOut} = dl;
+  if (dl.follow) return kerbAt(s) + yIn;
+  if (s > dl.a0 && s < dl.e1) return Math.min(curveY(s, dl), kerbAt(s) + yIn);   // a short taper: the S-curve never cuts over the kerb
+  return yOut;
+}
+function curveY(s, dl){
   const {yIn, yOut, R, Lc} = dl, h = Lc/2;
   const S2 = (t) => t <= h ? yOut + R - Math.sqrt(R*R - t*t) : yIn - (R - Math.sqrt(R*R - (Lc - t)**2));   // yOut -> yIn over [0, Lc]
   if (s <= dl.a0 || s >= dl.e1) return yOut;
@@ -1018,7 +1094,7 @@ function renderEval(){
     <div class="ecards">
       <div class="ecard"><h4><i>1</i>Exposure <span class="sub">Waiting zone, schematic index, not µg/m³</span></h4>${exRows}</div>
       <div class="ecard"><h4><i>2</i>Safety &amp; accessibility <span class="sub">clear path, kerb, canopy, seats</span></h4>${zRows}</div>
-      <div class="ecard"><h4><i>3</i>View of an approaching bus <span class="sub">${Math.min(C.d0, C.d1)}–${Math.max(C.d0, C.d1)} m upstream</span></h4>${sRows}
+      <div class="ecard"><h4><i>3</i>View of an approaching bus <span class="sub">${nextBus() ? 'front of the queued bus 2' : `${Math.min(C.d0, C.d1)}–${Math.max(C.d0, C.d1)} m upstream`}</span></h4>${sRows}
         <div class="ctl">Bus <input type="number" id="sgD0" min="2" max="60" step="1" value="${C.d0}">–<input type="number" id="sgD1" min="2" max="60" step="1" value="${C.d1}"> m ·
           eyes <input type="number" id="sgE0" min="0.6" max="2" step="0.1" value="${C.eyes[0]}"> / <input type="number" id="sgE1" min="0.6" max="2" step="0.1" value="${C.eyes[1]}"> m
           <label><input type="checkbox" id="sgOn" ${S.sightOn ? 'checked' : ''}> show rays</label><button class="b" id="sgRst">Reset</button></div>
@@ -1373,7 +1449,7 @@ function zonesFor(els, bikes){
 // and every operation copies it. Default only where the prototype allows a setback: against the rear of the roof, the walk route behind it.
 const BIKE = {D: 2.0, MIN: 1.0};
 function bikeDefault(els){
-  if (S.stop.prototype !== 'P-LAT') return [];
+  if (S.stop.prototype !== 'P-TRA') return [];
   const shs = shelters(els); if (!shs.length) return [];
   const back = Math.max(...shs.map(sh => shelterY(sh)[1])), walk = (S.stop.walk_route || 'behind')==='behind' ? CFG.WALK : 0;
   const y1 = Math.min(back + BIKE.D, S.site.footBack - walk);
@@ -1509,10 +1585,11 @@ function zoneStats(els, F){
 }
 
 // ---------- 3 · sightline to an approaching bus ----------
-// Each passenger point looks upstream at the front of a bus d metres away (d = d0…d1 m, 1 m steps) on the driving line;
-// targets = 3 points across the bus front at the route-number sign height. Eye heights e.g. 1.0 m (seated) and 1.5 m (standing),
-// above the footpath. The display hangs from the roof and blocks nothing. A ray is blocked by a solid screen / end wall, column, tree trunk or crown, planter,
-// seat, bollard or the stop pole when it passes at that height; a perforated screen counts half. Other buses are ignored.
+// Each passenger point looks upstream at the front of the next bus: with a queue, the front of bus 2 where it stands;
+// with one bus, a bus d metres away (d = d0…d1 m, 1 m steps) on the driving line. Targets = 3 points across the bus front
+// at the route-number sign height. Eye heights e.g. 1.0 m (seated) and 1.5 m (standing), above the footpath. The display hangs
+// from the roof and blocks nothing. A ray is blocked by a solid screen / end wall, column, tree (its crown footprint from the
+// ground up), planter, seat, bollard, the stop pole or bus 3 onward when it passes at that height; a perforated screen counts half.
 const SIGHT_DEF = {d0:10, d1:20, eyes:[1.0, 1.5]};
 const SIGHT = {targetZ:2.5, lateral:[-0.9, 0, 0.9], foot:0.15};
 let SIGHT_CFG = {...SIGHT_DEF, ...(store.get('lta.sight') || {})};
@@ -1525,13 +1602,13 @@ function sightObstacles(els){
     if (e.type==='screen') seg([e.s0, e.y0], [e.s1, e.y1], P.scrGap, P.scrGap + P.scrH, (e.kind||'solid')==='solid' ? 1 : 0.5);
     else if (e.type==='planter') ob.push({k:'poly', pts:[[e.s0,e.y0],[e.s1,e.y0],[e.s1,e.y1],[e.s0,e.y1]], z0:F, z1:F+P.planterH, w:1});
     else if (e.type==='seat'){ const q = seatGeo(e); ob.push({k:'poly', pts:q.seat, z0:F, z1:F+P.seatH, w:1}); seg(q.back[0], q.back[1], P.seatH, P.seatH + P.backH, 1); }
-    else if (e.type==='tree'){ ob.push({k:'cir', c:[e.s, e.y], r:P.treeTr, z0:F, z1:F+P.treeCh+e.r, w:1}); ob.push({k:'sph', c:[e.s, e.y, F+P.treeCh+e.r], r:e.r, w:1}); }
+    else if (e.type==='tree') ob.push({k:'cir', c:[e.s, e.y], r:e.r, z0:F, z1:F+P.treeCh+2*e.r, w:1});   // a stop tree in a planter: the crown footprint blocks at eye height
     else if (e.type==='bollard') ob.push({k:'cir', c:[e.s, e.y], r:P.bolR, z0:F, z1:F+P.bolH, w:1});
     else if (e.type==='shelter') for (const c of columnsOf(e)) ob.push({k:'cir', c:[c.s, c.y], r:colSize(e)/2, z0:F, z1:F+P.roofH, w:1});
   }
   ob.push({k:'cir', c:[0.4, S.site ? S.site.poleY : 0.75], r:P.poleR, z0:F, z1:F+P.poleH, w:1});   // the pole where it stands (pole_y_m)
-  // queued buses: the first bus is the one boarding, the ones behind it (2nd onward, upstream) hide the next approaching bus
-  for (const b of busList()) if (b.k >= 1) ob.push({k:'poly', pts:b.poly, z0:0, z1:P.busH || 3.2, w:1});
+  // bus 1 boards, bus 2 is the one being looked at; bus 3 onward stand in the way
+  for (const b of busList()) if (b.k >= 2) ob.push({k:'poly', pts:b.poly, z0:0, z1:P.busH || 3.2, w:1});
   return ob;
 }
 // blocking weight (0…1) of one ray E → T (3D points)
@@ -1575,14 +1652,21 @@ function sightTargets(p, d, dl){
   const sb = p.s - d, yc = driveY(sb, dl);
   return SIGHT.lateral.map(l => [sb, yc + l, SIGHT.targetZ]);
 }
+// the bus a waiting passenger looks for: a queued bus 2 where it stands, else the approach d0–d1 m upstream
+const nextBus = () => busList()[1] || null;
+function sightSets(p, dl){
+  const q = nextBus(), C = SIGHT_CFG;
+  if (q) return [SIGHT.lateral.map(l => [q.F[0] - q.n[0]*l, q.F[1] - q.n[1]*l, SIGHT.targetZ])];
+  const out = []; for (let d = Math.min(C.d0, C.d1); d <= Math.max(C.d0, C.d1) + 1e-6; d += 1) out.push(sightTargets(p, d, dl));
+  return out;
+}
 // share of the 10–20 m approach each passenger in a Waiting zone can see, per eye height (both eyes for every point)
 function sightline(els){
   const pax = paxInWaiting(els), ob = sightObstacles(els), dl = driveLine(), C = SIGHT_CFG;
-  const ds = []; for (let d = Math.min(C.d0, C.d1); d <= Math.max(C.d0, C.d1) + 1e-6; d += 1) ds.push(d);
   const eyes = C.eyes.map(h => {
     const per = pax.map(p => {
       const E = [p.s, p.y, SIGHT.foot + h]; let blk = 0, n = 0;
-      for (const d of ds) for (const T of sightTargets(p, d, dl)){ blk += rayBlock(E, T, ob); n++; }
+      for (const set of sightSets(p, dl)) for (const T of set){ blk += rayBlock(E, T, ob); n++; }
       return n ? 100*(1 - blk/n) : 100;
     });
     return {h, mean: per.length ? per.reduce((a, b) => a + b, 0)/per.length : null, min: per.length ? Math.min(...per) : null, per};
@@ -1607,12 +1691,13 @@ function screenNode(e, parent, ns){
   h('line', {x1:e.s0, y1:Y(e.y0), x2:e.s1, y2:Y(e.y1), stroke:'transparent', 'stroke-width':12, ...ns}, g);
   return g;
 }
-// rays from each passenger (eye 1.5 m or the higher eye) to the bus front at d0 / mid / d1: green clear, red blocked, amber partly
+// rays from each passenger to the next bus front (queued bus 2, else d0 / mid / d1 upstream): green clear by both eyes, red blocked for both, amber one
 function drawSight(ui, els){
   const ob = sightObstacles(els), dl = driveLine(), C = SIGHT_CFG, g = h('g', {'pointer-events':'none'}, ui), ns = {'vector-effect':'non-scaling-stroke'};
   const hs = C.eyes, d0 = Math.min(C.d0, C.d1), d1 = Math.max(C.d0, C.d1);
-  for (const p of paxInWaiting(els)) for (const d of [d0, (d0+d1)/2, d1]){
-    const T = sightTargets(p, d, dl)[1], bl = hs.map(hh => rayBlock([p.s, p.y, SIGHT.foot + hh], T, ob));
+  const q = nextBus();
+  for (const p of paxInWaiting(els)) for (const T of q ? [sightSets(p, dl)[0][1]] : [d0, (d0+d1)/2, d1].map(d => sightTargets(p, d, dl)[1])){
+    const bl = hs.map(hh => rayBlock([p.s, p.y, SIGHT.foot + hh], T, ob));
     const col = bl.every(b => b >= 1) ? '#d7263d' : bl.some(b => b > 0) ? '#e3a008' : '#2f9e44';
     h('line', {x1:p.s, y1:Y(p.y), x2:T[0], y2:Y(T[1]), stroke:col, 'stroke-width':1.3, 'stroke-opacity':0.75, ...ns}, g);
     h('circle', {cx:T[0], cy:Y(T[1]), r:0.14, fill:col}, g);
@@ -3250,7 +3335,7 @@ function findList(){
   return {list, gaps, raw, flagged};
 }
 function renderResults(){
-  const {list, gaps, raw, flagged} = findList(), sel = FIND.sel || S.stop.stop_idx;
+  const {list, gaps, raw, flagged} = findList(), sel = FIND.sel;
   $('#fCount').textContent = `${list.length} of ${STOPS.length}`;
   $('#gradeChips').innerHTML = GRADES.map((g, i) => {
     const n = STOPS.filter(s => EST[s.stop_idx] && gradeOf(EST[s.stop_idx].v)===i).length;
@@ -3272,7 +3357,7 @@ function renderResults(){
 function findRefresh(){ renderResults(); markers(); mapCard(); }
 function markers(){
   if (!MAP) return;
-  const vis = new Set(findList().list.map(s => s.stop_idx)), sel = FIND.sel || S.stop.stop_idx;
+  const vis = new Set(findList().list.map(s => s.stop_idx)), sel = FIND.sel;
   for (const s of STOPS){
     const m = MK[s.stop_idx]; if (!m) continue;
     const e = EST[s.stop_idx], g = gradeOf(e && e.v), on = s.stop_idx===sel;
@@ -3293,7 +3378,7 @@ function windDial(from){
     <g transform="rotate(${from})"><path d="M0 -19V4" stroke="#1d63b8" stroke-width="3" stroke-linecap="round"/><path d="M-5 2L0 10L5 2z" fill="#1d63b8"/></g></svg>`;
 }
 function mapCard(){
-  const sel = FIND.sel || S.stop.stop_idx, s = STOPS.find(x => x.stop_idx===sel), e = EST[sel];
+  const sel = FIND.sel, s = STOPS.find(x => x.stop_idx===sel), e = EST[sel];
   if (!s){ $('#mapCard').innerHTML = ''; return; }
   const ml = s.lat != null ? mapLinks(s) : null;
   $('#mapCard').innerHTML = `<div class="k sub">${s.stop_idx} · ${esc(s.bus_stop_id)}${s.demo_op ? ' · <span class="star">★ demo</span>' : ''}</div><h4>${esc(s.stop_name)}</h4>
@@ -3327,11 +3412,12 @@ function initMap(){
   if (!window.L){ $('#mapProg').textContent = 'Map library not loaded (offline?) – the list still works'; return; }
   MAP = L.map('map', {zoomControl:false}).setView([1.35, 103.8], 12);
   L.control.zoom({position:'bottomright'}).addTo(MAP);
+  MAP.on('click', () => { if (FIND.sel){ FIND.sel = null; findRefresh(); } });   // empty map: clear the pick (stop markers do not pass their clicks on)
   L.tileLayer('https://www.onemap.gov.sg/maps/tiles/Grey/{z}/{x}/{y}.png', {minZoom:11, maxZoom:19, detectRetina:true,
     attribution:'OneMap © contributors | Singapore Land Authority'}).addTo(MAP);
   for (const s of STOPS){
     if (s.lat == null) continue;
-    const m = L.circleMarker([s.lat, s.lon], {radius:6.5, weight:2, color:'#fff', fillOpacity:.95, fillColor:'#9aa1aa'}).addTo(MAP);
+    const m = L.circleMarker([s.lat, s.lon], {radius:6.5, weight:2, color:'#fff', fillOpacity:.95, fillColor:'#9aa1aa', bubblingMouseEvents:false}).addTo(MAP);
     m.bindTooltip(() => { const e = EST[s.stop_idx]; return `<b>${s.stop_idx}</b> ${esc(s.stop_name)}<br>${e ? `index ${e.v.toFixed(1)} · wind ${e.from}°` : '…'}`; }, {direction:'top', offset:[0,-6]});
     m.on('click', () => findSelect(s.stop_idx, false));
     MK[s.stop_idx] = m;
@@ -3345,7 +3431,6 @@ function initMap(){
 function findShow(){
   initMap();
   if (MAP) setTimeout(() => MAP.invalidateSize(), 0);
-  if (!FIND.sel) FIND.sel = S.stop.stop_idx;
   findRefresh();
 }
 $('#q').oninput = findRefresh;
@@ -3759,6 +3844,7 @@ $('#dArc').onclick = async () => {
   S.zonesOn = pf.zonesOn !== false; S.compsOn = pf.compsOn !== false; S.zlock = pf.zlock || {}; S.zhide = pf.zhide || {}; S.zlabels = pf.zlabels !== false; S.busOn = pf.busOn !== false; S.poleOn = pf.poleOn !== false;
   const hp = readHash(), st = STOPS.find(s => s.stop_idx===hp.stop || s.bus_stop_id===hp.stop) || STOPS[0];
   loadStop(st);
+  FIND.sel = null;   // the map opens with no stop picked
   if (hp.wind != null && hp.wind !== '') setWind(num(hp.wind), 'from link');
   if (hp.op && hp.op !== 'baseline') setOp(hp.op);
   goPage(PAGES[hp.page] ? hp.page : 'find');
@@ -4159,6 +4245,83 @@ const D3 = {
 };
 window.D3 = D3;
 window.dispatchEvent(new Event('d3ready'));
+</script>
+
+<script>
+/* ---------- MOBILE LAYOUT (Final delivery): pane tabs per page and two-finger zoom on the plan ---------- */
+(() => {
+  const mq = matchMedia('(max-width:768px)');
+  const PANES = {
+    find:     [['Map', '#pgFind > .fmap'], ['List', '#pgFind > .flist']],
+    baseline: [['Plan', '#stageHome'], ['Panel', '#pgWork > aside']],
+    edit:     [['Plan', '#stageHome'], ['Prototype', '#pgWork > aside'], ['Wind & bus', '#pgWork > .right']],
+    export:   [['Plan', '#stageHome'], ['Checks', '#pgWork > aside'], ['Export', '#pgWork > .right']],
+    design:   [['3D model', '#pgDesign > .dmain', '3d'], ['2D plan', '#pgDesign > .dmain', '2d'], ['Parameters', '#pgDesign > .dpanel']],
+    analysis: [['Charts', '#pgAnalysis > .an-main'], ['Schemes', '#pgAnalysis > .an-list']],
+    archive:  [],
+  };
+  const pick = {};
+  const bar = document.getElementById('mbar');
+  const clear = () => { for (const el of document.querySelectorAll('.page')){ delete el.dataset.m; for (const c of el.children) c.classList.remove('mshow'); } bar.innerHTML = ''; };
+  function show(page, i){
+    clear();
+    const list = PANES[page] || [];
+    if (!mq.matches || !list.length) return;
+    pick[page] = i = (i in list) ? i : 0;
+    const el = document.getElementById(PAGE_EL[page]);
+    el.dataset.m = '1';
+    const [, sel, view] = list[i];
+    document.querySelector(sel)?.classList.add('mshow');
+    if (view){ const b = document.querySelector(`#dLayout button[data-v="${view}"]`); if (b) b.click(); }
+    bar.innerHTML = list.map(([l], k) => `<button data-k="${k}" class="${k===i ? 'on' : ''}">${l}</button>`).join('');
+    if (page==='find' && typeof MAP!=='undefined' && MAP) setTimeout(() => {
+      MAP.invalidateSize();
+      // the page's first fit can run before the phone layout has a size: refit to all stops once
+      if (!refit && i===0){ refit = true; const pts = STOPS.filter(s => s.lat != null).map(s => [s.lat, s.lon]); if (pts.length) MAP.fitBounds(pts, {padding:[24,24]}); }
+    }, 0);
+  }
+  let refit = false;
+  bar.onclick = e => { const b = e.target.closest('button'); if (b) show(S.page, +b.dataset.k); };
+  const go0 = goPage;
+  goPage = p => { go0(p); show(S.page, pick[S.page] || 0); };
+  const sync = () => {
+    if (!mq.matches){
+      clear();
+      if (S.page==='design'){ const b = document.querySelector('#dLayout button[data-v="split"]'); if (b) b.click(); }
+      return;
+    }
+    show(S.page, pick[S.page] || 0);
+  };
+  mq.addEventListener('change', sync);
+  // on a phone, picking a stop card in the list jumps back to the map, where its card opens
+  // capture phase: show the map before the card's own handler moves it, so Leaflet never flies inside a hidden box
+  document.getElementById('results').addEventListener('click', e => {
+    if (!mq.matches || S.page!=='find' || !e.target.closest('.scard') || e.target.closest('button')) return;
+    show('find', 0); if (typeof MAP!=='undefined' && MAP) MAP.invalidateSize();
+  }, true);
+  sync();
+
+  // two fingers on the plan: pinch = zoom at the midpoint (one finger keeps select / move / pan)
+  const svgEl = document.getElementById('plan'), pts = new Map();
+  let d0 = 0;
+  const mid = () => { const [a, b] = [...pts.values()]; return {x:(a.x+b.x)/2, y:(a.y+b.y)/2, d:Math.hypot(a.x-b.x, a.y-b.y)}; };
+  svgEl.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch') return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pts.size === 2){ e.stopImmediatePropagation(); drag = null; pan = null; svgEl.classList.remove('panning'); d0 = mid().d; }
+  }, true);
+  svgEl.addEventListener('pointermove', e => {
+    if (!pts.has(e.pointerId)) return;
+    pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if (pts.size !== 2 || !d0) return;
+    e.stopImmediatePropagation();
+    const m = mid(); if (Math.abs(m.d - d0) < 4) return;
+    zoomAt(toM({clientX:m.x, clientY:m.y}), m.d / d0); d0 = m.d;
+  }, true);
+  const up = e => { pts.delete(e.pointerId); if (pts.size < 2) d0 = 0; };
+  svgEl.addEventListener('pointerup', up, true);
+  svgEl.addEventListener('pointercancel', up, true);
+})();
 </script>
 </body>
 </html>

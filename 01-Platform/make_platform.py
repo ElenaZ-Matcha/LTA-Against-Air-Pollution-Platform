@@ -12,6 +12,7 @@ Reads only ../02-Data (copies of the week9 / week10 sources, so this folder buil
        data_fixes.json            (this folder)            corrections made in the platform, on top of the baseline
 Writes LTA-Against Air Pollution Platform.html  (from platform_template.html)
 
+Final delivery copy (mobile + desktop layout; Archive always empty).
 Usage: python make_platform.py
 """
 import base64
@@ -26,8 +27,8 @@ from pyproj import Transformer
 import os
 
 HERE = Path(__file__).resolve().parent
-# week12 builds on the week11 data (no copy of 02-Data here); a local ../02-Data wins when present
-DATA = next(p for p in (HERE.parent / "02-Data", HERE.parent.parent / "week11" / "02-Data") if p.exists())
+# Final delivery: self-contained, data copied to ../02-Data (same layout as the GitHub/Vercel repo)
+DATA = HERE.parent / "02-Data"
 CROPS_HREF = Path(os.path.relpath(DATA / "crops", HERE)).as_posix()   # crops linked from the built page
 
 NAME = "LTA-Against Air Pollution Platform"
@@ -81,6 +82,8 @@ def main():
             print(f"{r['stop_idx']} skipped: {lf['note']}")
             continue
         d = {k: r.get(k, "") for k in KEEP}
+        if d["prototype"] == "P-LAT":   # renamed Transversal (P-TRA); stop_dataset_v2.csv in week11 keeps the old code
+            d["prototype"] = "P-TRA"
         d["demo_op"], d["demo_variant"] = DEMO.get(r["stop_idx"], ("", ""))
         if lf.get("name_new"):
             d["stop_name_old"], d["stop_name"] = d["stop_name"], lf["name_new"]
@@ -116,18 +119,8 @@ def main():
             for k, v in json.loads(path.read_text(encoding="utf-8")).items():
                 if k in {d["stop_idx"] for d in stops}:
                     fixes[k] = {**fixes.get(k, {}), **v}
-    # archive carried into every browser address: all archive exports (*archive*.json) in this folder or exports/,
-    # merged by id (newer file wins); the page adds each entry once
-    arcs = sorted([*HERE.glob("*archive*.json"), *(HERE / "exports").glob("*archive*.json")], key=lambda p: p.stat().st_mtime)
-    seed_by_id = {}
-    for p in arcs:
-        j = json.loads(p.read_text(encoding="utf-8"))
-        for a in (j if isinstance(j, list) else [j]):
-            if isinstance(a, dict) and a.get("id") and a.get("els") is not None and a.get("stop_idx"):
-                seed_by_id[a["id"]] = a
-    seed = sorted(seed_by_id.values(), key=lambda a: a.get("ts", ""), reverse=True)
-    if arcs:
-        print(f"archive seed: {len(seed)} item(s) from {', '.join(p.name for p in arcs)}")
+    # Final delivery: the published Archive starts empty; no local *archive*.json is ever embedded
+    seed = []
     tpl = (HERE / "platform_template.html").read_text(encoding="utf-8")
     html = (tpl.replace("/*__DATA__*/[]", json.dumps(stops, ensure_ascii=False))
                .replace("/*__SAT__*/{}", json.dumps(sat))
