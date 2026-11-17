@@ -6,6 +6,27 @@ A browser tool for redesigning bus stops in Singapore so that waiting passengers
 >
 > **Author:** Zhan Yao (individual project).
 
+## Demo, source and workflow
+
+| Resource | Link |
+| --- | --- |
+| Live platform (desktop and phone) | [Open LTA-AAP](https://lta-against-air-pollution-platform.vercel.app/) |
+| Source code | [GitHub repository](https://github.com/ElenaZ-Matcha/LTA-Against-Air-Pollution-Platform) |
+| Data provenance | [Data log](DATA_LOG.md) |
+| Final design demonstration | P041 OPP BLK 317 (17181), Clementi; detailed Rhino / Grasshopper files are supplied in the separate Technical Deliverables package. |
+
+### Open on a phone
+
+<img src="docs/images/LTA-AAP_QR.png" alt="QR code linking to the live LTA-AAP platform" width="180">
+
+### From platform to design
+
+![Platform and designer workflow: search, prototypes, evaluation and Grasshopper hand-off](docs/images/platform-designer-workflow.png)
+
+This diagram explains the workflow; empty illustration cells are placeholders. The platform supports design comparison and hand-off. Architectural refinement takes place in Rhino / Grasshopper.
+
+The separate **Technical Deliverables** package contains the wider research pipeline, traffic / wind / SVI-derived data and Grasshopper / Rhino demos. This repository contains the web platform and the data needed to build it. Full presentations, drawings and large model / data files are supplied separately when they exceed submission upload limits; a shared-folder download link has not yet been added here.
+
 ## Who it is for
 
 | | |
@@ -16,7 +37,7 @@ A browser tool for redesigning bus stops in Singapore so that waiting passengers
 
 The designer's workflow follows the left navigation of the page:
 
-1. **Find stop** – map of the sampled stops, coloured by an indicative exposure grade under the worst wind direction.
+1. **Find stop** – map of the sampled stops, coloured by an indicative exposure grade for the screening scenario (the worse of the two monsoon cases).
 2. **Baseline** – existing shelter, bus bay, pole, bollards, columns and five zones (Boarding, Crossing, Waiting, Filtering, Bicycle) drawn on the satellite crop.
 3. **Edit** – apply a prototype (*In-place*, *Longitudinal*, *Transversal*) and change components and zones.
 4. **Export & check** – evaluation (Waiting zone exposure; Waiting zone area, canopy cover, seats, nearest to kerb, clear path), wind and bus-exhaust scenario, DXF / JSON / PNG / GH package.
@@ -100,7 +121,7 @@ python 01-Platform/make_platform.py
 
 **Storage**
 - The Archive is kept in the browser (`localStorage`), separately for every address (`file://` and `http://localhost:8765` are different). Use *Export archive* / *Import archive* to move or back up options; nothing is stored on a server.
-- The page starts with an empty Archive. `make_platform.py` builds any `*archive*.json` in `01-Platform/` or `exports/` into the page for every visitor, so keep exports you do not want published under another name. `exports/P041_transversal_options.json` can be loaded with *Import archive*.
+- The published page starts with an empty Archive. The current `make_platform.py` does not embed local archive files. To load a sample scheme, use *Import archive* with a compatible archive JSON; schemes you save remain in your own browser.
 
 ## Versions
 
@@ -123,7 +144,7 @@ Users of this repository are responsible for following each provider's terms.
 
 - Internal keys differ from the names in the UI: *Longitudinal* = `split`, *Transversal* = `lateral` (formerly called P-LAT, now P-TSV).
 - Exports in `01-Platform/exports/` are samples from the review on 2026-10-28/29, made with the earlier version, not final designs.
-- Status: course work in progress (week 12). No warranty; do not use for real projects.
+- Version: week-12 platform with the phone layout added; documentation updated for the final technical submission (17 November 2026). This remains an academic prototype; do not use it for real projects.
 
 ---
 
